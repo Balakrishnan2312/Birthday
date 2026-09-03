@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="A cinematic interactive light experience with a pull-string lamp." />
+  <title>Pull the Light</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Instruction text -->
+  <p id="instruction" class="instruction">Pull the string to turn on the light</p>
+
+  <!-- Ambient room light overlay -->
+  <div id="room-light" class="room-light"></div>
+
+  <!-- Lamp assembly -->
+  <div id="lamp" class="lamp">
+    <!-- Lampshade -->
+    <div class="lampshade">
+      <div class="lampshade-inner"></div>
+      <!-- Bulb glow (visible when ON) -->
+      <div id="bulb-glow" class="bulb-glow"></div>
+    </div>
+
+    <!-- Pull-string assembly -->
+    <div id="pull-assembly" class="pull-assembly">
+      <div id="pull-string" class="pull-string"></div>
+      <div id="pull-handle" class="pull-handle" role="button" aria-label="Pull to toggle lamp" tabindex="0"></div>
+    </div>
+
+    <!-- Lamp stand -->
+    <div class="lamp-stand"></div>
+
+    <!-- Lamp base -->
+    <div class="lamp-base"></div>
+
+    <!-- Floor shadow -->
+    <div id="floor-shadow" class="floor-shadow"></div>
+  </div>
+
+  <!-- Light cone beam -->
+  <div id="light-cone" class="light-cone"></div>
+
+  <!-- Dust particles container -->
+  <div id="particles" class="particles"></div>
+
+  <!-- Cursor glow -->
+  <div id="cursor-glow" class="cursor-glow"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
