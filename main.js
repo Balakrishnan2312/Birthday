@@ -2745,6 +2745,78 @@ function closeMediaModal() {
 }
 
 // ==========================================
+// SPECIAL GIFT COUNTDOWN SYSTEM (3, 2, 1)
+// ==========================================
+let countdownInterval = null;
+
+function startSpecialGiftCountdown() {
+  const overlay = document.getElementById('gift-countdown-overlay');
+  const numberEl = document.getElementById('countdown-number');
+  const subtextEl = document.getElementById('countdown-subtext');
+
+  if (!overlay || !numberEl) return;
+
+  // Show overlay
+  overlay.classList.remove('hidden');
+  requestAnimationFrame(() => {
+    overlay.classList.remove('opacity-0', 'pointer-events-none');
+    overlay.classList.add('opacity-100', 'pointer-events-auto');
+  });
+
+  let count = 3;
+
+  function updateCount(val) {
+    playPageFlipSound();
+
+    numberEl.classList.remove('countdown-pop');
+    void numberEl.offsetWidth; // Trigger reflow
+
+    if (val > 0) {
+      numberEl.textContent = val;
+      if (subtextEl) subtextEl.textContent = 'Get ready for your surprise... ❤️';
+    } else {
+      numberEl.textContent = '🎉';
+      if (subtextEl) subtextEl.textContent = 'Opening your special gift! 🎁';
+    }
+
+    numberEl.classList.add('countdown-pop');
+  }
+
+  updateCount(count);
+
+  if (countdownInterval) clearInterval(countdownInterval);
+
+  countdownInterval = setInterval(() => {
+    count--;
+    if (count > 0) {
+      updateCount(count);
+    } else if (count === 0) {
+      updateCount(0);
+      if (typeof window.confetti === 'function') {
+        window.confetti({ particleCount: 160, spread: 90, origin: { y: 0.5 } });
+      }
+    } else {
+      clearInterval(countdownInterval);
+      countdownInterval = null;
+
+      // Hide overlay
+      overlay.classList.remove('opacity-100', 'pointer-events-auto');
+      overlay.classList.add('opacity-0', 'pointer-events-none');
+
+      setTimeout(() => {
+        overlay.classList.add('hidden');
+
+        // Open IMG_3570.PNG in Full Screen Cinematic Viewer
+        if (typeof window.openFullscreenViewer === 'function') {
+          window.openFullscreenViewer('IMG_3570.PNG', [{ type: 'image', src: 'IMG_3570.PNG' }]);
+        }
+      }, 450);
+    }
+  }, 1000);
+}
+window.startSpecialGiftCountdown = startSpecialGiftCountdown;
+
+// ==========================================
 // 7. UI EVENT LISTENERS & CROSS-PLATFORM INPUTS (WINDOWS & ANDROID)
 // ==========================================
 function setupUIEventListeners() {
@@ -2752,6 +2824,12 @@ function setupUIEventListeners() {
   const blowBtn = document.getElementById('blow-btn');
   if (blowBtn) {
     blowBtn.addEventListener('click', toggleUnforgettableMode);
+  }
+
+  // Special Gift Button
+  const specialGiftBtn = document.getElementById('special-gift-btn');
+  if (specialGiftBtn) {
+    specialGiftBtn.addEventListener('click', startSpecialGiftCountdown);
   }
 
   // Manual Modal Navigation Listeners (Previous / Next Arrows)
