@@ -6,115 +6,55 @@
 (function () {
   'use strict';
 
-  // 10 Personal Birthday Questions & Options
+  // Personal Birthday Questions & Options
   const QUIZ_QUESTIONS = [
     {
       id: 1,
-      question: "Naan unakku enna? 😏",
-      options: [
-        { letter: "A", text: "Best friend ❤️", reaction: "Awww! Good choice ❤️" },
-        { letter: "B", text: "Partner in crime 😈", reaction: "Ahhh… I knew you'd choose that 😏" },
-        { letter: "C", text: "Trouble maker 😂", reaction: "Really?! Me?! Trouble maker?! 😂" },
-        { letter: "D", text: "All of the above", reaction: "Haha! Absolutely all of the above! 🔥" }
-      ]
+      type: "text",
+      question: "Namma friendship-ku perfect emoji?",
+      placeholder: "Type your favorite emoji / answer here...",
     },
     {
       id: 2,
-      question: "Namma rendu perla yaaru first-a kovapaduva? 😂",
-      options: [
-        { letter: "A", text: "Naan", reaction: "Interesting choice 😂" },
-        { letter: "B", text: "Shobana", reaction: "Okay Shobana… noted 👀" },
-        { letter: "C", text: "Rendu perum", reaction: "Double trouble! 😂" },
-        { letter: "D", text: "Situation-ku depend", reaction: "Diplomatic answer! 😏" }
-      ]
+      type: "text",
+      question: "Namma rendu perum oru movie-la characters-na, genre enna? 🤭",
+      placeholder: "Type movie genre or role here...",
+      reaction: "Blockbuster movie for sure! 🤭"
+
     },
     {
       id: 3,
-      question: "Naan message pannama irundha nee enna pannuva? 👀",
-      options: [
-        { letter: "A", text: "Wait pannuven", reaction: "Patience level 100! ✨" },
-        { letter: "B", text: "Message pannuven", reaction: "Good response! 📱" },
-        { letter: "C", text: "Call pannuven", reaction: "Direct action! I like it 🔥" },
-        { letter: "D", text: "\"Finally peace!\" 😂", reaction: "Heyyy! No peace for you! 😂" }
-      ]
+      type: "text",
+      question: "Namma rendu perla yaaru first-a kovapaduva ",
+      placeholder: "Type your answer here...",
     },
     {
       id: 4,
-      question: "Naan unakku surprise kudutha, first reaction enna? 🎁",
-      options: [
-        { letter: "A", text: "Shock 😳", reaction: "Prepare to be shocked today! 🎁" },
-        { letter: "B", text: "Smile ❤️", reaction: "Keep smiling always! ❤️" },
-        { letter: "C", text: "Cry 🥹", reaction: "Happy tears only! 🥹" },
-        { letter: "D", text: "\"Idhellam edhukku?\" 😂", reaction: "Classic response! 😂" }
-      ]
+      type: "text",
+      question: "Naan message pannama irundha nee enna pannuva 😅",
+      placeholder: "Type your answer here...",
+
+
     },
     {
       id: 5,
-      question: "Namma friendship-ku perfect emoji?",
-      options: [
-        { letter: "A", text: "❤️", reaction: "Pure love! ❤️" },
-        { letter: "B", text: "😂", reaction: "Endless laughs! 😂" },
-        { letter: "C", text: "🫶", reaction: "Perfect bond! 🫶" },
-        { letter: "D", text: "😈", reaction: "Pure chaos! 😈" }
-      ]
+      type: "text",
+      question: "Naan unakku surprise kudutha, first reaction enna! 🎁",
+      placeholder: "Type your reaction here...",
     },
     {
       id: 6,
-      question: "Naan 1 day full-a reply pannama irundha? 📱",
-      options: [
-        { letter: "A", text: "Wait", reaction: "Suspicious patience 👀" },
-        { letter: "B", text: "Spam messages", reaction: "Spam incoming! 📱💥" },
-        { letter: "C", text: "Call", reaction: "Emergency call! 📞" },
-        { letter: "D", text: "\"Avan/ava poita!\" 😂", reaction: "That answer says a lot 😂" }
-      ]
-    },
-    {
-      id: 7,
-      question: "Naan '5 minutes-la varen' nu sonna, actually? 😂",
-      options: [
-        { letter: "A", text: "5 minutes", reaction: "Too optimistic! 😂" },
-        { letter: "B", text: "15 minutes", reaction: "More realistic 😏" },
-        { letter: "C", text: "30 minutes", reaction: "Okay okay... fair enough! 👀" },
-        { letter: "D", text: "Tomorrow 😭", reaction: "EXCUSE ME?! Tomorrow?! 😭" }
-      ]
-    },
-    {
-      id: 8,
-      question: "Namma rendu perum oru movie-la characters-na, genre enna? 🎬",
-      options: [
-        { letter: "A", text: "Comedy 😂", reaction: "Full-on blockbuster comedy! 😂" },
-        { letter: "B", text: "Romance ❤️", reaction: "Super sweet movie! ❤️" },
-        { letter: "C", text: "Adventure 🔥", reaction: "Action packed adventure! 🔥" },
-        { letter: "D", text: "Chaos 😈", reaction: "Absolute chaotic movie! 😈" }
-      ]
-    },
-    {
-      id: 9,
-      question: "Naan un birthday-a marandhutta? 😭",
-      options: [
-        { letter: "A", text: "Forgive", reaction: "So kind of you! 🥹" },
-        { letter: "B", text: "Block 😂", reaction: "Instant block?! No way! 😂" },
-        { letter: "C", text: "Revenge 😈", reaction: "Revenge plan loading... 😈" },
-        { letter: "D", text: "Never forget", reaction: "I will NEVER forget your birthday! ❤️" }
-      ]
-    },
-    {
-      id: 10,
-      question: "Naan unakku 'I have a surprise' nu sonna, nee first enna guess pannuva? 👀",
-      options: [
-        { letter: "A", text: "Gift 🎁", reaction: "Something special is coming... 🎁" },
-        { letter: "B", text: "Cake 🎂", reaction: "Cake is definitely waiting! 🎂" },
-        { letter: "C", text: "Trip ✈️", reaction: "Pack your bags! ✈️" },
-        { letter: "D", text: "Something crazy 😈", reaction: "Okay Shobana… get ready for something crazy! 😈" }
-      ]
+      type: "text",
+      question: "Naan un birthday-a maranthurutha 😅",
+      placeholder: "Type your answer here...",
+      reaction: "I will NEVER forget your birthday 🤍"
     }
   ];
 
   // Opening Intro Typography Sentences
   const INTRO_SENTENCES = [
-    { text: "Hi Shobana... ❤️", duration: 2700 },
-    { text: "I have a little surprise for you... ✨", duration: 2700 },
-    { text: "But first, you have to complete one little task. 😏", duration: 2900 }
+    { text: "Hi Shobana... 🤍", duration: 2700 },
+    { text: "I have a little surprise for you...", duration: 2700 }
   ];
 
   let currentQuestionIndex = 0;
@@ -129,7 +69,7 @@
       if (AudioContextClass) audioCtx = new AudioContextClass();
     }
     if (audioCtx && audioCtx.state === 'suspended') {
-      audioCtx.resume().catch(() => {});
+      audioCtx.resume().catch(() => { });
     }
     return audioCtx;
   }
@@ -177,7 +117,7 @@
           osc.stop(now + i * 0.08 + 0.5);
         });
       }
-    } catch (e) {}
+    } catch (e) { }
   }
 
   function init() {
@@ -254,7 +194,7 @@
 
     // Update Header & Progress Bar
     const questionNum = (index + 1).toString().padStart(2, '0');
-    if (badgeText) badgeText.textContent = `QUESTION ${index + 1} / 10`;
+    if (badgeText) badgeText.textContent = `QUESTION ${index + 1} / ${QUIZ_QUESTIONS.length}`;
 
     if (progressBar) {
       const percent = ((index + 1) / QUIZ_QUESTIONS.length) * 100;
@@ -263,29 +203,73 @@
 
     if (titleEl) titleEl.textContent = q.question;
 
-    // Render Options List
+    // Render Options List or Text Input Field
     optionsContainer.innerHTML = '';
 
-    q.options.forEach((opt) => {
-      const btn = document.createElement('button');
-      btn.className = 'sq-option-btn w-full py-3.5 px-5 rounded-2xl bg-slate-900/60 hover:bg-slate-800/80 active:scale-95 border border-white/15 hover:border-pink-400/50 transition-all duration-200 text-left font-medium flex items-center justify-between text-slate-100 hover:text-white shadow-md cursor-pointer group';
+    if (q.type === 'text' || !q.options) {
+      const inputWrap = document.createElement('div');
+      inputWrap.className = 'w-full flex flex-col gap-3.5';
 
-      btn.innerHTML = `
-        <div class="flex items-center gap-3.5 pointer-events-none">
-          <span class="w-8 h-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-xs font-bold text-pink-300 group-hover:bg-pink-500 group-hover:text-white transition-all shadow-inner">
-            ${opt.letter}
-          </span>
-          <span class="text-sm sm:text-base font-semibold tracking-wide">${opt.text}</span>
-        </div>
-        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all pointer-events-none"></i>
-      `;
+      const inputEl = document.createElement('input');
+      inputEl.type = 'text';
+      inputEl.className = 'w-full py-3 px-4 sm:py-3.5 sm:px-5 rounded-xl sm:rounded-2xl bg-slate-950/40 border border-white/25 text-white placeholder-slate-400 focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-500/40 text-xs sm:text-base font-medium transition-all backdrop-blur-md shadow-inner';
+      inputEl.placeholder = q.placeholder || 'Type your answer here...';
 
-      btn.addEventListener('click', () => {
-        onOptionSelected(btn, opt);
+      const submitBtn = document.createElement('button');
+      submitBtn.className = 'w-full py-3 px-4 sm:py-3.5 sm:px-5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-pink-500 via-purple-500 to-pink-600 hover:opacity-95 active:scale-95 text-white font-bold tracking-wide transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer text-xs sm:text-base';
+      submitBtn.innerHTML = `<span>Submit Answer</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+
+      const handleSubmit = () => {
+        const val = inputEl.value.trim();
+        if (!val) {
+          inputEl.classList.add('border-red-400', 'ring-2', 'ring-red-400/50');
+          setTimeout(() => inputEl.classList.remove('border-red-400', 'ring-2', 'ring-red-400/50'), 800);
+          return;
+        }
+        if (isTransitioning) return;
+        isTransitioning = true;
+
+        playChime('select');
+        submitBtn.classList.add('opacity-80', 'scale-98');
+        showReactionToast(q.reaction || 'Answer saved! ❤️');
+
+        setTimeout(() => {
+          advanceNextQuestion();
+        }, 1100);
+      };
+
+      submitBtn.addEventListener('click', handleSubmit);
+      inputEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleSubmit();
       });
 
-      optionsContainer.appendChild(btn);
-    });
+      inputWrap.appendChild(inputEl);
+      inputWrap.appendChild(submitBtn);
+      optionsContainer.appendChild(inputWrap);
+
+      setTimeout(() => inputEl.focus(), 150);
+    } else {
+      q.options.forEach((opt) => {
+        const btn = document.createElement('button');
+        btn.className = 'sq-option-btn w-full py-3 px-4 sm:py-3.5 sm:px-5 rounded-xl sm:rounded-2xl bg-slate-950/40 hover:bg-pink-600/30 active:scale-95 border border-white/20 hover:border-pink-400/60 transition-all duration-200 text-left font-medium flex items-center justify-between text-slate-100 hover:text-white backdrop-blur-md shadow-md cursor-pointer group';
+
+        btn.innerHTML = `
+          <div class="flex items-center gap-2.5 sm:gap-3.5 pointer-events-none">
+            <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-xs font-bold text-pink-300 group-hover:bg-pink-500 group-hover:text-white transition-all shadow-inner shrink-0">
+              ${opt.letter}
+            </span>
+            <span class="text-xs sm:text-base font-semibold tracking-wide">${opt.text}</span>
+          </div>
+          <i data-lucide="chevron-right" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all pointer-events-none shrink-0"></i>
+        `;
+
+        btn.addEventListener('click', () => {
+          onOptionSelected(btn, opt);
+        });
+
+        optionsContainer.appendChild(btn);
+      });
+    }
 
     if (window.lucide) window.lucide.createIcons();
   }
@@ -360,53 +344,36 @@
 
     const quizLayer = document.getElementById('shobanaQuizLayer');
     const completionLayer = document.getElementById('shobanaCompletionLayer');
-    const completeTextEl = document.getElementById('sq-complete-text');
+    const surpriseBtn = document.getElementById('sq-surprise-btn');
 
     if (quizLayer) {
-      quizLayer.classList.add('sq-fade-out');
-      setTimeout(() => quizLayer.classList.add('hidden'), 500);
+      quizLayer.classList.remove('opacity-100', 'scale-100');
+      quizLayer.classList.add('opacity-0', 'scale-95');
+      setTimeout(() => {
+        quizLayer.classList.add('hidden');
+      }, 500);
     }
 
     if (completionLayer) {
       completionLayer.classList.remove('hidden');
-      setTimeout(() => {
+      requestAnimationFrame(() => {
         completionLayer.classList.remove('opacity-0', 'scale-95');
         completionLayer.classList.add('opacity-100', 'scale-100');
-      }, 100);
+      });
     }
 
-    const sequence = [
-      { text: "✨ TASK COMPLETED ✨", duration: 1400 },
-      { text: "Okay Shobana...", duration: 1600 },
-      { text: "Your surprise is ready... 👀❤️", duration: 1800 },
-      { text: "Get ready... 🎂✨", duration: 2000 }
-    ];
+    if (surpriseBtn) {
+      const newSurpriseBtn = surpriseBtn.cloneNode(true);
+      surpriseBtn.parentNode.replaceChild(newSurpriseBtn, surpriseBtn);
 
-    let step = 0;
-
-    function runCompletionStep() {
-      if (step >= sequence.length) {
+      newSurpriseBtn.addEventListener('click', () => {
+        playChime('select');
+        if (typeof window.confetti === 'function') {
+          window.confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+        }
         dismissAllQuizLayers();
-        return;
-      }
-
-      const item = sequence[step];
-      if (completeTextEl) {
-        completeTextEl.classList.remove('opacity-100', 'scale-100');
-        completeTextEl.classList.add('opacity-0', 'scale-95');
-
-        setTimeout(() => {
-          completeTextEl.textContent = item.text;
-          completeTextEl.classList.remove('opacity-0', 'scale-95');
-          completeTextEl.classList.add('opacity-100', 'scale-100');
-        }, 280);
-      }
-
-      step++;
-      setTimeout(runCompletionStep, item.duration);
+      });
     }
-
-    runCompletionStep();
   }
 
   // Phase 5: Reveal Existing 3D Cake Experience
@@ -416,6 +383,11 @@
     const introLayer = document.getElementById('shobanaIntroLayer');
 
     if (completionLayer) completionLayer.classList.add('sq-fade-out');
+
+    // Trigger 3D Cake Experience reveal automatically
+    if (typeof window.triggerCakeReveal === 'function') {
+      window.triggerCakeReveal();
+    }
 
     setTimeout(() => {
       if (introLayer) { introLayer.style.display = 'none'; introLayer.remove(); }

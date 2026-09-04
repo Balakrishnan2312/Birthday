@@ -310,7 +310,16 @@ function turnOffLamp() {
 }
 
 function triggerCakeReveal() {
+  lampOn = true;
   currentAppState = APP_STATE.LIGHT_REVEAL;
+
+  // Clean up intro/quiz layers if present
+  const introLayer = document.getElementById('shobanaIntroLayer');
+  const quizLayer = document.getElementById('shobanaQuizLayer');
+  const completionLayer = document.getElementById('shobanaCompletionLayer');
+  if (introLayer) { introLayer.style.display = 'none'; introLayer.remove(); }
+  if (quizLayer) { quizLayer.style.display = 'none'; quizLayer.remove(); }
+  if (completionLayer) { completionLayer.style.display = 'none'; completionLayer.remove(); }
 
   const lampIntro = document.getElementById('lamp-intro');
   const transitionOverlay = document.getElementById('transition-overlay');
@@ -324,8 +333,7 @@ function triggerCakeReveal() {
 
   // At peak flash (~300ms), reveal 3D cake room
   revealTransitionTimerId = setTimeout(() => {
-    if (!lampOn) return; // Cancelled if user toggled OFF
-
+    lampOn = true;
     if (cakeExperience) cakeExperience.classList.add('cake-experience-active');
     currentAppState = APP_STATE.CAKE_ROOM;
 
@@ -348,6 +356,7 @@ function triggerCakeReveal() {
     }, 1600);
   }, 300);
 }
+window.triggerCakeReveal = triggerCakeReveal;
 
 /* Dust Particles System */
 function startParticles() {
@@ -2001,10 +2010,11 @@ function openFrameModal(frameIndex, direction = null) {
 
   playPageFlipSound();
 
-  renderLeftBookletTitle(pageLeftContent, frameIndex, wallFrames.length);
+  renderLeftPage(pageLeftContent, frameIndex, wallFrames.length);
   renderMediaToBookletContainer(pageRightContent, srcUrl);
 
   modal.classList.add('modal-active');
+  resetAutoSlideshowTimer();
 }
 
 function applyPhotoToFrame(frameIndex, imageSrc, refreshModal = false, fitMode = 'cover') {
@@ -2354,6 +2364,25 @@ function renderMediaToBookletContainer(container, srcUrl) {
   }
 }
 
+function renderLeftPage(container, currentIdx, totalItems) {
+  if (!container) return;
+  if (currentIdx === 0) {
+    renderLeftBookletTitle(container, currentIdx, totalItems);
+  } else {
+    let srcUrl = null;
+    if (UNFORGETTABLE_SLIDESHOW_ITEMS && UNFORGETTABLE_SLIDESHOW_ITEMS[currentIdx - 1]) {
+      srcUrl = UNFORGETTABLE_SLIDESHOW_ITEMS[currentIdx - 1].src;
+    } else if (DEFAULT_FRAME_PHOTOS && DEFAULT_FRAME_PHOTOS[currentIdx - 1]) {
+      srcUrl = DEFAULT_FRAME_PHOTOS[currentIdx - 1];
+    }
+    if (srcUrl) {
+      renderMediaToBookletContainer(container, srcUrl);
+    } else {
+      renderLeftBookletTitle(container, currentIdx, totalItems);
+    }
+  }
+}
+
 function renderLeftBookletTitle(container, currentIdx, totalItems) {
   if (!container) return;
   container.innerHTML = `
@@ -2401,9 +2430,10 @@ function openSlideshowMediaItem(index, direction = null) {
 
   // If opening modal for the first time or direction is null (no 3D flip animation)
   if (!direction || !modal.classList.contains('modal-active')) {
-    renderLeftBookletTitle(pageLeftContent, slideshowIndex, total);
+    renderLeftPage(pageLeftContent, slideshowIndex, total);
     renderMediaToBookletContainer(pageRightContent, item.src);
     modal.classList.add('modal-active');
+    resetAutoSlideshowTimer();
     return;
   }
 
@@ -2415,14 +2445,14 @@ function openSlideshowMediaItem(index, direction = null) {
   if (direction === 'next') {
     // Flipping page from Right to Left
     renderMediaToBookletContainer(leafFront, prevItem.src);
-    renderLeftBookletTitle(leafBack, slideshowIndex, total);
+    renderLeftPage(leafBack, slideshowIndex, total);
     renderMediaToBookletContainer(pageRightContent, item.src);
 
     flipLeaf.className = 'booklet-flip-leaf flip-next-mode animate-flip-next';
     flipLeaf.style.display = 'flex';
 
     setTimeout(() => {
-      renderLeftBookletTitle(pageLeftContent, slideshowIndex, total);
+      renderLeftPage(pageLeftContent, slideshowIndex, total);
       flipLeaf.style.display = 'none';
       flipLeaf.className = 'booklet-flip-leaf';
       isPageFlipping = false;
@@ -2430,8 +2460,8 @@ function openSlideshowMediaItem(index, direction = null) {
 
   } else if (direction === 'prev') {
     // Flipping page from Left to Right
-    renderLeftBookletTitle(pageLeftContent, slideshowIndex, total);
-    renderLeftBookletTitle(leafFront, slideshowIndex, total);
+    renderLeftPage(pageLeftContent, slideshowIndex, total);
+    renderLeftPage(leafFront, slideshowIndex, total);
     renderMediaToBookletContainer(leafBack, prevItem.src);
 
     flipLeaf.className = 'booklet-flip-leaf flip-prev-mode animate-flip-prev';
@@ -2444,22 +2474,53 @@ function openSlideshowMediaItem(index, direction = null) {
       isPageFlipping = false;
     }, 700);
   } else {
-    renderLeftBookletTitle(pageLeftContent, slideshowIndex, total);
+    renderLeftPage(pageLeftContent, slideshowIndex, total);
     renderMediaToBookletContainer(pageRightContent, item.src);
     isPageFlipping = false;
   }
 
   modal.classList.add('modal-active');
+  resetAutoSlideshowTimer();
 }
 
 function resetAutoSlideshowTimer() {
   if (autoMoveTimer) clearInterval(autoMoveTimer);
-  if (!isAudioPlaying) return;
 
+  // Auto change page every 7 seconds (7000ms)
   autoMoveTimer = setInterval(() => {
     slideshowIndex = (slideshowIndex + 1) % UNFORGETTABLE_SLIDESHOW_ITEMS.length;
     openSlideshowMediaItem(slideshowIndex, 'next');
-  }, 3500);
+  }, 7000);
+}
+
+function downloadCurrentImage() {
+  let srcUrl = null;
+
+  if (UNFORGETTABLE_SLIDESHOW_ITEMS && UNFORGETTABLE_SLIDESHOW_ITEMS[slideshowIndex]) {
+    srcUrl = UNFORGETTABLE_SLIDESHOW_ITEMS[slideshowIndex].src;
+  } else if (typeof activeSelectedFrameIndex !== 'undefined' && wallFrames && wallFrames[activeSelectedFrameIndex]) {
+    const frameData = wallFrames[activeSelectedFrameIndex];
+    if (frameData.hasCustomPhoto && frameData.customPhotoUrl) {
+      srcUrl = frameData.customPhotoUrl;
+    } else if (DEFAULT_FRAME_PHOTOS && DEFAULT_FRAME_PHOTOS[activeSelectedFrameIndex]) {
+      srcUrl = DEFAULT_FRAME_PHOTOS[activeSelectedFrameIndex];
+    }
+  }
+
+  if (!srcUrl) {
+    const rightImg = document.querySelector('#page-right-content img');
+    if (rightImg) srcUrl = rightImg.src;
+  }
+
+  if (!srcUrl) return;
+
+  const pageNum = (slideshowIndex !== undefined ? slideshowIndex : (activeSelectedFrameIndex || 0)) + 1;
+  const a = document.createElement('a');
+  a.href = srcUrl;
+  a.download = `Birthday_Memory_Photo_${pageNum}.jpg`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 function navigateSlideshow(direction) {
@@ -2472,11 +2533,7 @@ function navigateSlideshow(direction) {
   }
 
   openSlideshowMediaItem(slideshowIndex, direction);
-
-  // Restart timer starting from current manual index
-  if (isAudioPlaying) {
-    resetAutoSlideshowTimer();
-  }
+  resetAutoSlideshowTimer();
 }
 
 function startAutoSlideshow() {
@@ -2631,8 +2688,13 @@ function setupUIEventListeners() {
   // Lightbox Modal Listeners
   const modalCloseBtn = document.getElementById('modal-close');
   const mediaModal = document.getElementById('media-modal');
+  const modalDownloadBtn = document.getElementById('modal-download-btn');
+
   if (modalCloseBtn) {
     modalCloseBtn.addEventListener('click', closeMediaModal);
+  }
+  if (modalDownloadBtn) {
+    modalDownloadBtn.addEventListener('click', downloadCurrentImage);
   }
   if (mediaModal) {
     mediaModal.addEventListener('click', (e) => {
