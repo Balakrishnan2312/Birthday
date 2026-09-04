@@ -313,50 +313,58 @@ function triggerCakeReveal() {
   lampOn = true;
   currentAppState = APP_STATE.LIGHT_REVEAL;
 
-  // Clean up intro/quiz layers if present
   const introLayer = document.getElementById('shobanaIntroLayer');
   const quizLayer = document.getElementById('shobanaQuizLayer');
   const completionLayer = document.getElementById('shobanaCompletionLayer');
-  if (introLayer) { introLayer.style.display = 'none'; introLayer.remove(); }
-  if (quizLayer) { quizLayer.style.display = 'none'; quizLayer.remove(); }
-  if (completionLayer) { completionLayer.style.display = 'none'; completionLayer.remove(); }
+  if (introLayer) { introLayer.style.display = 'none'; }
+  if (quizLayer) { quizLayer.style.display = 'none'; }
+  if (completionLayer) { completionLayer.style.display = 'none'; }
 
   const lampIntro = document.getElementById('lamp-intro');
   const transitionOverlay = document.getElementById('transition-overlay');
   const cakeExperience = document.getElementById('cake-experience');
 
+  // Instantly hide lamp intro so it doesn't block the 3D room on mobile
+  if (lampIntro) {
+    lampIntro.classList.add('intro-fading', 'intro-hidden');
+    lampIntro.style.display = 'none';
+  }
+
   // Warm golden transition flash
   if (transitionOverlay) transitionOverlay.classList.add('active');
 
-  // Fade, scale and blur lamp intro
-  if (lampIntro) lampIntro.classList.add('intro-fading');
-
-  // At peak flash (~300ms), reveal 3D cake room
+  // Reveal 3D cake room
   revealTransitionTimerId = setTimeout(() => {
     lampOn = true;
-    if (cakeExperience) cakeExperience.classList.add('cake-experience-active');
+    if (cakeExperience) {
+      cakeExperience.style.display = 'block';
+      cakeExperience.classList.add('cake-experience-active');
+    }
     currentAppState = APP_STATE.CAKE_ROOM;
 
     // Play background song automatically when entering 3D cake room!
     playSiteBGMOnOpen();
 
-    // Trigger Three.js renderer & camera resize adaptation
+    // Force immediate camera & WebGL renderer adaptation for mobile viewports
     onWindowResize();
 
     // Fade out flash overlay
     setTimeout(() => {
       if (transitionOverlay) transitionOverlay.classList.remove('active');
     }, 400);
-
-    // Hide lamp intro completely after transition completes
-    setTimeout(() => {
-      if (lampIntro && currentAppState === APP_STATE.CAKE_ROOM) {
-        lampIntro.classList.add('intro-hidden');
-      }
-    }, 1600);
-  }, 300);
+  }, 150);
 }
 window.triggerCakeReveal = triggerCakeReveal;
+
+function goBackToQuiz() {
+  const cakeExperience = document.getElementById('cake-experience');
+  if (cakeExperience) cakeExperience.classList.remove('cake-experience-active');
+  currentAppState = APP_STATE.QUIZ;
+  if (typeof window.reopenQuiz === 'function') {
+    window.reopenQuiz();
+  }
+}
+window.goBackToQuiz = goBackToQuiz;
 
 /* Dust Particles System */
 function startParticles() {
@@ -2683,6 +2691,12 @@ function setupUIEventListeners() {
         resetFrameToEmpty(activeSelectedFrameIndex);
       }
     });
+  }
+
+  // Cake Room Back Navigation Listener
+  const cakeBackBtn = document.getElementById('cake-back-btn');
+  if (cakeBackBtn) {
+    cakeBackBtn.addEventListener('click', goBackToQuiz);
   }
 
   // Lightbox Modal Listeners

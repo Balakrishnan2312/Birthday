@@ -512,6 +512,11 @@ canvas:active {
   transform: scale(1);
   filter: blur(0px);
   pointer-events: auto;
+  z-index: 40 !important;
+}
+
+#canvas-container canvas {
+  touch-action: none;
 }
 
 /* Lamp Instruction Text */

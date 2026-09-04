@@ -390,11 +390,38 @@
     }
 
     setTimeout(() => {
-      if (introLayer) { introLayer.style.display = 'none'; introLayer.remove(); }
-      if (quizLayer) { quizLayer.style.display = 'none'; quizLayer.remove(); }
-      if (completionLayer) { completionLayer.style.display = 'none'; completionLayer.remove(); }
+      if (introLayer) { introLayer.style.display = 'none'; }
+      if (quizLayer) { quizLayer.style.display = 'none'; }
+      if (completionLayer) { completionLayer.style.display = 'none'; }
     }, 800);
   }
+
+  function reopenQuiz() {
+    const cakeExperience = document.getElementById('cake-experience');
+    if (cakeExperience) cakeExperience.classList.remove('cake-experience-active');
+
+    const completionLayer = document.getElementById('shobanaCompletionLayer');
+    const quizLayer = document.getElementById('shobanaQuizLayer');
+
+    if (completionLayer) {
+      completionLayer.style.display = 'none';
+      completionLayer.classList.add('hidden', 'opacity-0');
+      completionLayer.classList.remove('sq-fade-out', 'opacity-100', 'scale-100');
+    }
+
+    if (quizLayer) {
+      quizLayer.style.display = 'flex';
+      quizLayer.classList.remove('hidden', 'sq-fade-out');
+      requestAnimationFrame(() => {
+        quizLayer.classList.remove('opacity-0', 'scale-95');
+        quizLayer.classList.add('opacity-100', 'scale-100');
+      });
+    }
+
+    currentQuestionIndex = 0;
+    renderQuestion(0);
+  }
+  window.reopenQuiz = reopenQuiz;
 
   // Initialize on DOM Ready
   if (document.readyState === 'loading') {
