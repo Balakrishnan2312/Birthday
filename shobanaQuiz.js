@@ -12,42 +12,58 @@
       id: 1,
       type: "text",
       question: "Namma friendship-ku perfect emoji?",
-      placeholder: "Type your favorite emoji / answer here...",
+      placeholder: "",
     },
     {
       id: 2,
       type: "text",
       question: "Namma rendu perum oru movie-la characters-na, genre enna? 🤭",
-      placeholder: "Type movie genre or role here...",
+      placeholder: "",
       reaction: "Blockbuster movie for sure! 🤭"
 
     },
     {
       id: 3,
       type: "text",
-      question: "Namma rendu perla yaaru first-a kovapaduva ",
-      placeholder: "Type your answer here...",
+      question: "One word-la ennai describe panna 🤭",
+      placeholder: "eeeeeeeeeeeeee",
+
+
     },
     {
       id: 4,
       type: "text",
-      question: "Naan message pannama irundha nee enna pannuva 😅",
-      placeholder: "Type your answer here...",
-
-
+      question: "Namma rendu perla yaaru first-a kovapaduva ",
+      placeholder: "",
     },
     {
       id: 5,
       type: "text",
-      question: "Naan unakku surprise kudutha, first reaction enna! 🎁",
-      placeholder: "Type your reaction here...",
+      question: "Naan message pannama irundha nee enna pannuva 😅",
+      placeholder: "",
+
+
     },
     {
       id: 6,
       type: "text",
+      question: "Naan unakku surprise kudutha, first reaction enna! 🎁",
+      placeholder: "",
+    },
+    {
+      id: 7,
+      type: "text",
       question: "Naan un birthday-a maranthurutha 😅",
-      placeholder: "Type your answer here...",
+      placeholder: "",
       reaction: "I will NEVER forget your birthday 🤍"
+    },
+
+    {
+      id: 8,
+      type: "text",
+      question: "ipa unodaiya turn yethacham kekanuna kekalam sollanalum sollalam 😅 ",
+      placeholder: "",
+
     }
   ];
 
