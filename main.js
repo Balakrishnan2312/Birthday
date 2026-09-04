@@ -2403,10 +2403,10 @@ function renderLeftBookletTitle(container, currentIdx, totalItems) {
       <div class="booklet-avatar-frame w-28 h-28 sm:w-32 sm:h-32 aspect-square flex-shrink-0 mb-3 sm:mb-4 rounded-full p-1 bg-amber-100/90 border-2 border-amber-300 shadow-md flex items-center justify-center overflow-hidden ring-2 ring-amber-200/60 transition-transform duration-300 hover:scale-105">
         <img src="IMG_0027.JPG" alt="Memory Photo" class="w-full h-full object-cover rounded-full" />
       </div>
-      <h2 class="booklet-left-title text-xl sm:text-2xl text-amber-950 font-bold tracking-wide mb-1.5 px-2">
+      <h2 class="booklet-left-title text-xl sm:text-2xl text-amber-200 font-extrabold tracking-wide mb-1.5 px-2 drop-shadow-md">
         Our Precious Memories🤍
       </h2>
-      <p class="text-base sm:text-lg text-amber-900/80 font-semibold tracking-wide">
+      <p class="text-base sm:text-lg text-amber-300 font-bold tracking-wide drop-shadow-sm">
         Happy Birthday LUSUU💎
       </p>
       <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-amber-400 to-transparent my-3 sm:my-4"></div>
