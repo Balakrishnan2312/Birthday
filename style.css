@@ -1044,3 +1044,47 @@ canvas:active {
 .sq-glass-card {
   animation: sqGlassPulse 4.5s ease-in-out infinite alternate;
 }
+
+/* ---------------------------------------------------- */
+/* LUXURIOUS FULL-SCREEN CINEMATIC IMAGE VIEWER STYLES  */
+/* ---------------------------------------------------- */
+#fullscreen-image-viewer.fs-viewer-active {
+  display: flex !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+#fullscreen-image-viewer.fs-viewer-active #fs-media-container {
+  opacity: 1 !important;
+  transform: scale(1) !important;
+}
+
+.fs-img-transition-next {
+  animation: fsSlideNext 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.fs-img-transition-prev {
+  animation: fsSlidePrev 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fsSlideNext {
+  0% {
+    opacity: 0.3;
+    transform: scale(0.95) translateX(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+  }
+}
+
+@keyframes fsSlidePrev {
+  0% {
+    opacity: 0.3;
+    transform: scale(0.95) translateX(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+  }
+}

@@ -2368,6 +2368,11 @@ function renderMediaToBookletContainer(container, srcUrl) {
   } else if (typeof srcUrl === 'string') {
     const img = document.createElement('img');
     img.src = srcUrl;
+    img.className = 'cursor-pointer transition-transform duration-300 hover:scale-[1.02] active:scale-95';
+    img.title = 'Click for Full Screen View 🔍';
+    img.addEventListener('click', () => {
+      openFullscreenViewer(srcUrl);
+    });
     container.appendChild(img);
   }
 }
@@ -2557,6 +2562,131 @@ function stopAutoSlideshow() {
   }
 }
 
+// ==========================================
+// LUXURIOUS FULL-SCREEN CINEMATIC IMAGE VIEWER
+// ==========================================
+let fsCurrentIndex = 0;
+let fsItemsList = [];
+let touchStartX = 0;
+let touchEndX = 0;
+
+function openFullscreenViewer(indexOrSrc, itemsArray = null) {
+  const viewer = document.getElementById('fullscreen-image-viewer');
+  if (!viewer) return;
+
+  if (itemsArray && Array.isArray(itemsArray) && itemsArray.length > 0) {
+    fsItemsList = itemsArray;
+    fsCurrentIndex = typeof indexOrSrc === 'number' ? indexOrSrc : 0;
+  } else if (UNFORGETTABLE_SLIDESHOW_ITEMS && UNFORGETTABLE_SLIDESHOW_ITEMS.length > 0) {
+    fsItemsList = UNFORGETTABLE_SLIDESHOW_ITEMS;
+    if (typeof indexOrSrc === 'number') {
+      fsCurrentIndex = indexOrSrc;
+    } else if (typeof indexOrSrc === 'string') {
+      const foundIdx = fsItemsList.findIndex(item => item.src === indexOrSrc);
+      fsCurrentIndex = foundIdx !== -1 ? foundIdx : 0;
+    }
+  } else {
+    fsItemsList = [{ type: 'image', src: typeof indexOrSrc === 'string' ? indexOrSrc : 'photo2.jpg' }];
+    fsCurrentIndex = 0;
+  }
+
+  updateFullscreenMediaContent();
+
+  viewer.classList.remove('hidden');
+  requestAnimationFrame(() => {
+    viewer.classList.add('fs-viewer-active');
+  });
+
+  if (window.lucide) lucide.createIcons();
+}
+window.openFullscreenViewer = openFullscreenViewer;
+
+function updateFullscreenMediaContent(animationDirection = null) {
+  if (!fsItemsList || fsItemsList.length === 0) return;
+
+  const total = fsItemsList.length;
+  fsCurrentIndex = (fsCurrentIndex + total) % total;
+  const currentItem = fsItemsList[fsCurrentIndex];
+
+  const imgEl = document.getElementById('fs-active-img');
+  const videoEl = document.getElementById('fs-active-video');
+  const counterText = document.getElementById('fs-counter-text');
+  const captionText = document.getElementById('fs-caption-text');
+  const mediaContainer = document.getElementById('fs-media-container');
+
+  if (counterText) {
+    counterText.textContent = `${fsCurrentIndex + 1} / ${total}`;
+  }
+
+  if (mediaContainer && animationDirection) {
+    mediaContainer.classList.remove('fs-img-transition-next', 'fs-img-transition-prev');
+    void mediaContainer.offsetWidth; // Trigger reflow
+    mediaContainer.classList.add(animationDirection === 'next' ? 'fs-img-transition-next' : 'fs-img-transition-prev');
+  }
+
+  const isVideo = currentItem.type === 'video' || (typeof currentItem.src === 'string' && (currentItem.src.includes('.mp4') || currentItem.src.includes('.webm') || currentItem.src.includes('.mov')));
+
+  if (isVideo) {
+    if (imgEl) imgEl.classList.add('hidden');
+    if (videoEl) {
+      videoEl.src = currentItem.src;
+      videoEl.classList.remove('hidden');
+      videoEl.play().catch(() => {});
+    }
+    if (captionText) captionText.textContent = `🎬 Birthday Memory Video Clip ${fsCurrentIndex + 1}`;
+  } else {
+    if (videoEl) {
+      videoEl.pause();
+      videoEl.classList.add('hidden');
+    }
+    if (imgEl) {
+      imgEl.src = currentItem.src;
+      imgEl.classList.remove('hidden');
+    }
+    if (captionText) captionText.textContent = `✨ Birthday Memory Photo ${fsCurrentIndex + 1}`;
+  }
+}
+
+function navigateFullscreenViewer(direction) {
+  if (direction === 'next') {
+    fsCurrentIndex++;
+  } else if (direction === 'prev') {
+    fsCurrentIndex--;
+  }
+  updateFullscreenMediaContent(direction);
+}
+window.navigateFullscreenViewer = navigateFullscreenViewer;
+
+function closeFullscreenViewer() {
+  const viewer = document.getElementById('fullscreen-image-viewer');
+  const videoEl = document.getElementById('fs-active-video');
+  if (videoEl) videoEl.pause();
+
+  if (viewer) {
+    viewer.classList.remove('fs-viewer-active');
+    setTimeout(() => {
+      viewer.classList.add('hidden');
+    }, 450);
+  }
+}
+window.closeFullscreenViewer = closeFullscreenViewer;
+
+function downloadFullscreenImage() {
+  if (!fsItemsList || !fsItemsList[fsCurrentIndex]) return;
+  const currentItem = fsItemsList[fsCurrentIndex];
+  const srcUrl = currentItem.src;
+  if (!srcUrl) return;
+
+  const a = document.createElement('a');
+  a.href = srcUrl;
+  const ext = currentItem.type === 'video' ? 'mp4' : 'jpg';
+  a.download = `Birthday_Memory_${fsCurrentIndex + 1}.${ext}`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+window.downloadFullscreenImage = downloadFullscreenImage;
+
 function toggleUnforgettableMode() {
   initAudio();
 
@@ -2716,6 +2846,36 @@ function setupUIEventListeners() {
     });
   }
 
+  // Full-Screen Image Viewer Control Listeners
+  const fsCloseBtn = document.getElementById('fs-close-btn');
+  const fsPrevBtn = document.getElementById('fs-prev-btn');
+  const fsNextBtn = document.getElementById('fs-next-btn');
+  const fsDownloadBtn = document.getElementById('fs-download-btn');
+  const fsViewerEl = document.getElementById('fullscreen-image-viewer');
+
+  if (fsCloseBtn) fsCloseBtn.addEventListener('click', closeFullscreenViewer);
+  if (fsPrevBtn) fsPrevBtn.addEventListener('click', () => navigateFullscreenViewer('prev'));
+  if (fsNextBtn) fsNextBtn.addEventListener('click', () => navigateFullscreenViewer('next'));
+  if (fsDownloadBtn) fsDownloadBtn.addEventListener('click', downloadFullscreenImage);
+
+  if (fsViewerEl) {
+    fsViewerEl.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    fsViewerEl.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      const swipeDistance = touchEndX - touchStartX;
+      if (Math.abs(swipeDistance) > 40) {
+        if (swipeDistance < 0) {
+          navigateFullscreenViewer('next');
+        } else {
+          navigateFullscreenViewer('prev');
+        }
+      }
+    }, { passive: true });
+  }
+
   // ------------------------------------------
   // A. WINDOWS DESKTOP KEYBOARD CONTROLS
   // ------------------------------------------
@@ -2723,27 +2883,42 @@ function setupUIEventListeners() {
     // Ignore input if typing in an input element
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
+    const fsViewer = document.getElementById('fullscreen-image-viewer');
+    const isFsActive = fsViewer && fsViewer.classList.contains('fs-viewer-active');
+
     switch (e.code) {
       case 'Space':
-        e.preventDefault();
-        toggleUnforgettableMode();
+        if (!isFsActive) {
+          e.preventDefault();
+          toggleUnforgettableMode();
+        }
         break;
       case 'Escape':
-        closeMediaModal();
+        if (isFsActive) {
+          closeFullscreenViewer();
+        } else {
+          closeMediaModal();
+        }
         break;
       case 'ArrowLeft':
-        if (mediaModal && mediaModal.classList.contains('modal-active')) {
+        if (isFsActive) {
+          navigateFullscreenViewer('prev');
+        } else if (mediaModal && mediaModal.classList.contains('modal-active')) {
           navigateSlideshow('prev');
         }
         break;
       case 'ArrowRight':
-        if (mediaModal && mediaModal.classList.contains('modal-active')) {
+        if (isFsActive) {
+          navigateFullscreenViewer('next');
+        } else if (mediaModal && mediaModal.classList.contains('modal-active')) {
           navigateSlideshow('next');
         }
         break;
       case 'KeyT':
-        activeThemeIndex = (activeThemeIndex + 1) % CAKE_THEMES.length;
-        createCake();
+        if (!isFsActive) {
+          activeThemeIndex = (activeThemeIndex + 1) % CAKE_THEMES.length;
+          createCake();
+        }
         break;
     }
   });
