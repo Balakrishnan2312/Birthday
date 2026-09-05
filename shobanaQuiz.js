@@ -340,11 +340,10 @@
 
         playChime('select');
         submitBtn.classList.add('opacity-80', 'scale-98');
-        showReactionToast(q.reaction || 'Answer saved! ❤️');
 
         setTimeout(() => {
           advanceNextQuestion();
-        }, 1100);
+        }, 200);
       };
 
       submitBtn.addEventListener('click', handleSubmit);
@@ -385,7 +384,7 @@
   }
   window.renderQuestion = renderQuestion;
 
-  // Handle Option Click & Playful Reaction Toast
+  // Handle Option Click
   function onOptionSelected(btnEl, optionData) {
     if (isTransitioning) return;
     isTransitioning = true;
@@ -400,29 +399,10 @@
     // Highlight button
     btnEl.classList.add('border-pink-400', 'bg-pink-500/30', 'scale-98', 'shadow-[0_0_25px_rgba(244,114,182,0.4)]');
 
-    // Show reaction toast
-    showReactionToast(optionData.reaction);
-
-    // Transition to next question after reaction delay
+    // Transition to next question after fast delay
     setTimeout(() => {
       advanceNextQuestion();
-    }, 1100);
-  }
-
-  function showReactionToast(reactionText) {
-    const toast = document.getElementById('sq-toast');
-    const toastText = document.getElementById('sq-toast-text');
-
-    if (!toast || !toastText) return;
-
-    toastText.textContent = reactionText;
-    toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
-    toast.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
-
-    setTimeout(() => {
-      toast.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
-      toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
-    }, 1000);
+    }, 200);
   }
 
   function advanceNextQuestion() {

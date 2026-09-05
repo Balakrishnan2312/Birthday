@@ -3122,7 +3122,7 @@ function startSpecialGiftCountdown(isRestoring = false) {
 
         // Open IMG_3570.PNG in Full Screen Cinematic Viewer
         if (typeof window.openFullscreenViewer === 'function') {
-          window.openFullscreenViewer('IMG_3570.PNG', [{ type: 'image', src: 'IMG_3570.PNG' }]);
+          window.openFullscreenViewer('assets/photos/IMG_3570.PNG', [{ type: 'image', src: 'assets/photos/IMG_3570.PNG' }]);
         }
       }, 450);
     }
