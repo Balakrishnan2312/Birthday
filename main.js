@@ -2260,35 +2260,70 @@ function onPointerMove(event) {
 }
 
 // ==========================================
-// 6B. MUSIC & AUTOMATED PHOTO/VIDEO SLIDESHOW (IMAGES FIRST, THEN VIDEOS WITHOUT AUDIO)
+// 6B. MUSIC & INTERACTIVE PHOTO & PARAGRAPH EXPERIENCE
 // ==========================================
 let bgAudio = null;
 let isAudioPlaying = false;
 let autoMoveTimer = null;
 let slideshowIndex = 0;
 
-// Sequence: All Photo Images play FIRST, then Video Clips play NEXT (WITHOUT AUDIO)
-const UNFORGETTABLE_SLIDESHOW_ITEMS = [
-  // --- 1. OPEN ALL IMAGES FIRST ---
-  { type: 'image', src: 'photo4.jpg' },
-  { type: 'image', src: 'Screenshot 2026-08-14 223703.png' },
-  { type: 'image', src: 'photo2.jpg' },
-  { type: 'image', src: 'IMG_2952.JPG' },
-  { type: 'image', src: 'Screenshot 2026-08-14 223827.png' },
-  { type: 'image', src: 'photo3.jpg' },
-  { type: 'image', src: 'photo11.jpeg' },
-  { type: 'image', src: 'photo5.jpeg' },
-  { type: 'image', src: 'photo10.jpeg' },
-  { type: 'image', src: 'photo6.jpeg' },
-  { type: 'image', src: 'IMG_0027.JPG' },
+// Master Configured Media List for Memories Gallery (/assets/photos/ & /assets/videos/)
+const MEMORIES_DATA = {
+  photos: [
+    { src: 'assets/photos/photo4.jpg', title: 'Precious Moments', caption: 'From the very first moment, every smile shared with you has brought endless warmth and happiness. Happy Birthday to someone truly irreplaceable! 💖' },
+    { src: 'assets/photos/Screenshot 2026-08-14 223703.png', title: 'Warm Sunshine', caption: 'Looking back at this moment reminds me of how wonderfully bright your energy is. You light up every room you walk into! ✨' },
+    { src: 'assets/photos/photo2.jpg', title: 'Timeless Story', caption: 'Every photo tells a story, but with you, every story becomes a cherished lifelong treasure. Thank you for being so amazing! 🌸' },
+    { src: 'assets/photos/IMG_2952.JPG', title: 'Pure Joy', caption: 'Your laughter is genuinely contagious and your kindness knows no bounds. Wishing you all the joy in the world today! 💎' },
+    { src: 'assets/photos/Screenshot 2026-08-14 223827.png', title: 'Special Bond', caption: 'Moments like these prove how special our bond is. Cheers to creating a million more unforgettable memories together! 🥂' },
+    { src: 'assets/photos/photo3.jpg', title: 'Sweet Happiness', caption: 'A sweet glimpse of happiness captured in time. May your year ahead be as beautiful and extraordinary as you are! 🎂' },
+    { src: 'assets/photos/photo11.jpeg', title: 'Bright Vibes', caption: 'Through all the crazy fun and quiet moments, your presence always makes everything a hundred times better! 🌟' },
+    { src: 'assets/photos/photo5.jpeg', title: 'Endless Smiles', caption: 'Celebrating you today and every single day! May your heart always be full of love, peace, and endless smiles. 🎀' },
+    { src: 'assets/photos/photo10.jpeg', title: 'Shining Star', caption: 'Another favorite memory in our journey! Keep shining bright and chasing every single dream with that gorgeous smile. 💫' },
+    { src: 'assets/photos/photo6.jpeg', title: 'Heartwarming', caption: 'Life is so much sweeter with you around. Thank you for all the laughs, warmth, and constant positivity! 💖' },
+    { src: 'assets/photos/IMG_0027.JPG', title: 'Birthday Magic', caption: 'Our precious birthday memory! You deserve all the magical surprises and purest happiness today and forever! 🤍' },
+    { src: 'assets/photos/IMG_3570.PNG', title: 'Golden Memory', caption: 'Unforgettable moment filled with pure happiness, joy, and celebration! ✨' },
+    { src: 'assets/photos/IMG_2955_2.JPG', title: 'Cherished Delight', caption: 'Special celebration snapshot capturing genuine laughter and warmth! 🌸' }
+  ],
+  videos: [
+    { src: 'assets/videos/IMG_2945.MP4', title: 'Live Joy & Laughter', caption: 'Unforgettable live memory capturing genuine laughter, pure celebration, and joy! 🎬' },
+    { src: 'assets/videos/IMG_2947.MP4', title: 'Happy Journey Snippet', caption: 'A happy snippet of our journey together! Moments like this are forever etched in our hearts. 🌟' },
+    { src: 'assets/videos/IMG_2949.MP4', title: 'Pure Celebration Vibes', caption: 'Capturing the purest smiles and purest vibes. Cheers to the best birthday celebration! 🎉' },
+    { src: 'assets/videos/WhatsApp Video 2025-12-23 at 8.35.51 PM.mp4', title: 'Sweet Surprises', caption: 'Magical highlights & joyous laughter during our special celebration! 💖' },
+    { src: 'assets/videos/WhatsApp Video 2025-12-23 at 8.36.05 PM.mp4', title: 'Golden Birthday Highlight', caption: 'Special birthday highlight filled with sweet surprises and happy memories! 🎁' },
+    { src: 'assets/videos/WhatsApp Video 2025-12-23 at 8.36.06 PM.mp4', title: 'Warmest Memory Reel', caption: 'Wrapping up this wonderful memory reel with lots of love and warmest birthday wishes! 💜' }
+  ]
+};
 
-  // --- 2. THEN PLAY ALL VIDEOS NEXT (MUTED / WITHOUT AUDIO) ---
-  { type: 'video', src: 'video/IMG_2945.MP4' },
-  { type: 'video', src: 'video/IMG_2947.MP4' },
-  { type: 'video', src: 'video/IMG_2949.MP4' },
-  { type: 'video', src: 'video/WhatsApp Video 2025-12-23 at 8.36.05 PM.mp4' },
-  { type: 'video', src: 'video/WhatsApp Video 2025-12-23 at 8.36.06 PM.mp4' }
+// Default Photo & Paragraph Memory Items (derived from MEMORIES_DATA)
+const DEFAULT_UNFORGETTABLE_ITEMS = [
+  ...MEMORIES_DATA.photos.map(p => ({ type: 'image', src: p.src, paragraph: p.caption, title: p.title })),
+  ...MEMORIES_DATA.videos.map(v => ({ type: 'video', src: v.src, paragraph: v.caption, title: v.title }))
 ];
+
+function loadUnforgettableMemories() {
+  try {
+    const saved = localStorage.getItem('unforgettable_memories');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    }
+  } catch (e) {
+    console.warn('Error loading saved memories:', e);
+  }
+  return [...DEFAULT_UNFORGETTABLE_ITEMS];
+}
+
+function saveUnforgettableMemories() {
+  try {
+    localStorage.setItem('unforgettable_memories', JSON.stringify(UNFORGETTABLE_SLIDESHOW_ITEMS));
+  } catch (e) {
+    console.warn('Error saving memories:', e);
+  }
+}
+
+let UNFORGETTABLE_SLIDESHOW_ITEMS = loadUnforgettableMemories();
 
 function initAudio() {
   if (!bgAudio) {
@@ -2310,186 +2345,67 @@ function playSiteBGMOnOpen() {
   }
 }
 
-// ------------------------------------------
-// 3D BOOKLET MEDIA RENDER & SOUND SYNTHESIS
-// ------------------------------------------
-function playPageFlipSound() {
-  try {
-    const ctx = getAudioContext();
-    const duration = 0.25;
-    const bufferSize = ctx.sampleRate * duration;
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const output = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-      const decay = Math.sin((i / bufferSize) * Math.PI);
-      output[i] = (Math.random() * 2 - 1) * decay * 0.18;
-    }
-
-    const whiteNoise = ctx.createBufferSource();
-    whiteNoise.buffer = buffer;
-
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'bandpass';
-    filter.frequency.setValueAtTime(900, ctx.currentTime);
-    filter.frequency.exponentialRampToValueAtTime(250, ctx.currentTime + duration);
-    filter.Q.setValueAtTime(1.2, ctx.currentTime);
-
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.22, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
-
-    whiteNoise.connect(filter);
-    filter.connect(gain);
-    gain.connect(ctx.destination);
-
-    whiteNoise.start();
-  } catch (e) {
-    console.warn('Page flip sound issue:', e);
-  }
-}
-
-function renderMediaToBookletContainer(container, srcUrl) {
-  if (!container) return;
-  container.innerHTML = '';
-
-  if (!srcUrl) return;
-
-  const isVideo = typeof srcUrl === 'string' && (srcUrl.toLowerCase().includes('.mp4') || srcUrl.toLowerCase().includes('.webm') || srcUrl.toLowerCase().includes('.mov'));
-
-  if (isVideo) {
-    const video = document.createElement('video');
-    video.src = srcUrl;
-    video.controls = true;
-    video.autoplay = true;
-    video.muted = true; // Muted video audio
-    video.playsInline = true;
-    video.loop = true;
-    container.appendChild(video);
-  } else if (typeof srcUrl === 'string') {
-    const img = document.createElement('img');
-    img.src = srcUrl;
-    img.className = 'cursor-pointer transition-transform duration-300 hover:scale-[1.02] active:scale-95';
-    img.title = 'Click for Full Screen View 🔍';
-    img.addEventListener('click', () => {
-      openFullscreenViewer(srcUrl);
-    });
-    container.appendChild(img);
-  }
-}
-
-function renderLeftPage(container, currentIdx, totalItems) {
-  if (!container) return;
-  if (currentIdx === 0) {
-    renderLeftBookletTitle(container, currentIdx, totalItems);
-  } else {
-    let srcUrl = null;
-    if (UNFORGETTABLE_SLIDESHOW_ITEMS && UNFORGETTABLE_SLIDESHOW_ITEMS[currentIdx - 1]) {
-      srcUrl = UNFORGETTABLE_SLIDESHOW_ITEMS[currentIdx - 1].src;
-    } else if (DEFAULT_FRAME_PHOTOS && DEFAULT_FRAME_PHOTOS[currentIdx - 1]) {
-      srcUrl = DEFAULT_FRAME_PHOTOS[currentIdx - 1];
-    }
-    if (srcUrl) {
-      renderMediaToBookletContainer(container, srcUrl);
-    } else {
-      renderLeftBookletTitle(container, currentIdx, totalItems);
-    }
-  }
-}
-
-function renderLeftBookletTitle(container, currentIdx, totalItems) {
-  if (!container) return;
-  container.innerHTML = `
-    <div class="flex flex-col items-center justify-center text-center p-4 h-full select-none font-sans">
-      <div class="booklet-avatar-frame w-28 h-28 sm:w-32 sm:h-32 aspect-square flex-shrink-0 mb-3 sm:mb-4 rounded-full p-1 bg-amber-100/90 border-2 border-amber-300 shadow-md flex items-center justify-center overflow-hidden ring-2 ring-amber-200/60 transition-transform duration-300 hover:scale-105">
-        <img src="IMG_0027.JPG" alt="Memory Photo" class="w-full h-full object-cover rounded-full" />
-      </div>
-      <h2 class="booklet-left-title text-xl sm:text-2xl text-amber-200 font-extrabold tracking-wide mb-1.5 px-2 drop-shadow-md">
-        Our Precious Memories🤍
-      </h2>
-      <p class="text-base sm:text-lg text-amber-300 font-bold tracking-wide drop-shadow-sm">
-        Happy Birthday LUSUU💎
-      </p>
-      <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-amber-400 to-transparent my-3 sm:my-4"></div>
-    </div>
-  `;
-  if (window.lucide) lucide.createIcons();
-}
-
-let isPageFlipping = false;
-
+// Render Photo & Paragraph Slide Card (No booklet / flip effects)
 function openSlideshowMediaItem(index, direction = null) {
   if (!UNFORGETTABLE_SLIDESHOW_ITEMS || UNFORGETTABLE_SLIDESHOW_ITEMS.length === 0) return;
 
   const total = UNFORGETTABLE_SLIDESHOW_ITEMS.length;
-  const prevIdx = slideshowIndex;
   slideshowIndex = (index + total) % total;
 
   const item = UNFORGETTABLE_SLIDESHOW_ITEMS[slideshowIndex];
-  const prevItem = UNFORGETTABLE_SLIDESHOW_ITEMS[prevIdx];
 
   const modal = document.getElementById('media-modal');
   const modalIndicator = document.getElementById('modal-indicator');
-  const pageLeftContent = document.getElementById('page-left-content');
-  const pageRightContent = document.getElementById('page-right-content');
-  const flipLeaf = document.getElementById('booklet-flip-leaf');
-  const leafFront = document.getElementById('leaf-front-content');
-  const leafBack = document.getElementById('leaf-back-content');
+  const slideContainer = document.getElementById('memory-slide-container');
+  const photoImg = document.getElementById('memory-photo');
+  const videoEl = document.getElementById('memory-video');
+  const paragraphEl = document.getElementById('memory-paragraph');
 
-  if (!modal || !pageRightContent) return;
+  if (!modal || !photoImg || !paragraphEl) return;
 
   if (modalIndicator) {
-    modalIndicator.textContent = `Page ${slideshowIndex + 1} of ${total}`;
+    modalIndicator.textContent = `Memory ${slideshowIndex + 1} of ${total}`;
   }
 
-  // If opening modal for the first time or direction is null (no 3D flip animation)
-  if (!direction || !modal.classList.contains('modal-active')) {
-    renderLeftPage(pageLeftContent, slideshowIndex, total);
-    renderMediaToBookletContainer(pageRightContent, item.src);
-    modal.classList.add('modal-active');
-    resetAutoSlideshowTimer();
-    return;
-  }
+  const renderContent = () => {
+    const isVideo = item.type === 'video' || (typeof item.src === 'string' && (item.src.toLowerCase().includes('.mp4') || item.src.toLowerCase().includes('.webm') || item.src.toLowerCase().includes('.mov')));
 
-  if (isPageFlipping) return;
-  isPageFlipping = true;
+    if (isVideo) {
+      photoImg.classList.add('hidden');
+      if (videoEl) {
+        videoEl.src = item.src;
+        videoEl.classList.remove('hidden');
+        videoEl.play().catch(() => {});
+      }
+    } else {
+      if (videoEl) {
+        videoEl.pause();
+        videoEl.classList.add('hidden');
+      }
+      photoImg.src = item.src;
+      photoImg.classList.remove('hidden');
+      photoImg.onclick = () => {
+        if (typeof openFullscreenViewer === 'function') {
+          openFullscreenViewer(item.src);
+        }
+      };
+    }
 
-  playPageFlipSound();
+    paragraphEl.textContent = item.paragraph || `Special Birthday Memory ${slideshowIndex + 1} 💖`;
+  };
 
-  if (direction === 'next') {
-    // Flipping page from Right to Left
-    renderMediaToBookletContainer(leafFront, prevItem.src);
-    renderLeftPage(leafBack, slideshowIndex, total);
-    renderMediaToBookletContainer(pageRightContent, item.src);
-
-    flipLeaf.className = 'booklet-flip-leaf flip-next-mode animate-flip-next';
-    flipLeaf.style.display = 'flex';
-
+  if (slideContainer && direction && modal.classList.contains('modal-active')) {
+    slideContainer.classList.add('slide-fade-out');
     setTimeout(() => {
-      renderLeftPage(pageLeftContent, slideshowIndex, total);
-      flipLeaf.style.display = 'none';
-      flipLeaf.className = 'booklet-flip-leaf';
-      isPageFlipping = false;
-    }, 700);
-
-  } else if (direction === 'prev') {
-    // Flipping page from Left to Right
-    renderLeftPage(pageLeftContent, slideshowIndex, total);
-    renderLeftPage(leafFront, slideshowIndex, total);
-    renderMediaToBookletContainer(leafBack, prevItem.src);
-
-    flipLeaf.className = 'booklet-flip-leaf flip-prev-mode animate-flip-prev';
-    flipLeaf.style.display = 'flex';
-
-    setTimeout(() => {
-      renderMediaToBookletContainer(pageRightContent, item.src);
-      flipLeaf.style.display = 'none';
-      flipLeaf.className = 'booklet-flip-leaf';
-      isPageFlipping = false;
-    }, 700);
+      renderContent();
+      slideContainer.classList.remove('slide-fade-out');
+      slideContainer.classList.add('slide-fade-in');
+      setTimeout(() => {
+        slideContainer.classList.remove('slide-fade-in');
+      }, 350);
+    }, 150);
   } else {
-    renderLeftPage(pageLeftContent, slideshowIndex, total);
-    renderMediaToBookletContainer(pageRightContent, item.src);
-    isPageFlipping = false;
+    renderContent();
   }
 
   modal.classList.add('modal-active');
@@ -2499,38 +2415,24 @@ function openSlideshowMediaItem(index, direction = null) {
 function resetAutoSlideshowTimer() {
   if (autoMoveTimer) clearInterval(autoMoveTimer);
 
-  // Auto change page every 7 seconds (7000ms)
+  // Auto transition to next photo & paragraph every 8 seconds
   autoMoveTimer = setInterval(() => {
     slideshowIndex = (slideshowIndex + 1) % UNFORGETTABLE_SLIDESHOW_ITEMS.length;
     openSlideshowMediaItem(slideshowIndex, 'next');
-  }, 7000);
+  }, 8000);
 }
 
 function downloadCurrentImage() {
-  let srcUrl = null;
+  if (!UNFORGETTABLE_SLIDESHOW_ITEMS || !UNFORGETTABLE_SLIDESHOW_ITEMS[slideshowIndex]) return;
 
-  if (UNFORGETTABLE_SLIDESHOW_ITEMS && UNFORGETTABLE_SLIDESHOW_ITEMS[slideshowIndex]) {
-    srcUrl = UNFORGETTABLE_SLIDESHOW_ITEMS[slideshowIndex].src;
-  } else if (typeof activeSelectedFrameIndex !== 'undefined' && wallFrames && wallFrames[activeSelectedFrameIndex]) {
-    const frameData = wallFrames[activeSelectedFrameIndex];
-    if (frameData.hasCustomPhoto && frameData.customPhotoUrl) {
-      srcUrl = frameData.customPhotoUrl;
-    } else if (DEFAULT_FRAME_PHOTOS && DEFAULT_FRAME_PHOTOS[activeSelectedFrameIndex]) {
-      srcUrl = DEFAULT_FRAME_PHOTOS[activeSelectedFrameIndex];
-    }
-  }
-
-  if (!srcUrl) {
-    const rightImg = document.querySelector('#page-right-content img');
-    if (rightImg) srcUrl = rightImg.src;
-  }
-
+  const currentItem = UNFORGETTABLE_SLIDESHOW_ITEMS[slideshowIndex];
+  const srcUrl = currentItem.src;
   if (!srcUrl) return;
 
-  const pageNum = (slideshowIndex !== undefined ? slideshowIndex : (activeSelectedFrameIndex || 0)) + 1;
   const a = document.createElement('a');
   a.href = srcUrl;
-  a.download = `Birthday_Memory_Photo_${pageNum}.jpg`;
+  const isVideo = currentItem.type === 'video';
+  a.download = `Birthday_Memory_${slideshowIndex + 1}.${isVideo ? 'mp4' : 'jpg'}`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -2550,7 +2452,7 @@ function navigateSlideshow(direction) {
 }
 
 function startAutoSlideshow() {
-  slideshowIndex = 0; // ALWAYS START AT THE VERY FIRST IMAGE PHOTO WHEN BUTTON CLICKED!
+  slideshowIndex = 0; // Start at Photo 1 & Paragraph 1
   openSlideshowMediaItem(slideshowIndex, 'next');
   resetAutoSlideshowTimer();
 }
@@ -2559,6 +2461,75 @@ function stopAutoSlideshow() {
   if (autoMoveTimer) {
     clearInterval(autoMoveTimer);
     autoMoveTimer = null;
+  }
+}
+
+// Setup Upload Custom Photo & Paragraph Feature
+function setupUploadMemoryListeners() {
+  const addMemoryBtn = document.getElementById('add-memory-btn');
+  const uploadModal = document.getElementById('upload-memory-modal');
+  const uploadCloseBtn = document.getElementById('upload-memory-close');
+  const uploadCancelBtn = document.getElementById('upload-memory-cancel');
+  const uploadForm = document.getElementById('upload-memory-form');
+  const fileInput = document.getElementById('memory-file-input');
+  const previewContainer = document.getElementById('memory-upload-preview');
+  const previewImg = document.getElementById('memory-upload-img-preview');
+  const paragraphInput = document.getElementById('memory-paragraph-input');
+
+  const openUploadModal = () => {
+    if (uploadModal) uploadModal.classList.add('modal-active');
+  };
+
+  const closeUploadModal = () => {
+    if (uploadModal) uploadModal.classList.remove('modal-active');
+    if (uploadForm) uploadForm.reset();
+    if (previewContainer) previewContainer.classList.add('hidden');
+  };
+
+  if (addMemoryBtn) addMemoryBtn.addEventListener('click', openUploadModal);
+  if (uploadCloseBtn) uploadCloseBtn.addEventListener('click', closeUploadModal);
+  if (uploadCancelBtn) uploadCancelBtn.addEventListener('click', closeUploadModal);
+
+  if (fileInput && previewContainer && previewImg) {
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          previewImg.src = event.target.result;
+          previewContainer.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  if (uploadForm) {
+    uploadForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const file = fileInput ? fileInput.files[0] : null;
+      const paragraphText = paragraphInput ? paragraphInput.value.trim() : '';
+
+      if (!file || !paragraphText) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const newMemory = {
+          type: file.type.startsWith('video/') ? 'video' : 'image',
+          src: event.target.result,
+          paragraph: paragraphText
+        };
+
+        UNFORGETTABLE_SLIDESHOW_ITEMS.push(newMemory);
+        saveUnforgettableMemories();
+
+        closeUploadModal();
+        // Immediately move to newly created photo & paragraph slide
+        slideshowIndex = UNFORGETTABLE_SLIDESHOW_ITEMS.length - 1;
+        openSlideshowMediaItem(slideshowIndex, 'next');
+      };
+      reader.readAsDataURL(file);
+    });
   }
 }
 
@@ -2817,6 +2788,311 @@ function startSpecialGiftCountdown() {
 window.startSpecialGiftCountdown = startSpecialGiftCountdown;
 
 // ==========================================
+// 💿 MEMORIES WE'LL ALWAYS TREASURE GALLERY SYSTEM
+// ==========================================
+
+const POLAROID_ROTATIONS = [-3.5, 2.5, -1.8, 3.2, -4, 1.6, -2.4, 3.8, -3, 2, -2.2, 3.4, -1.5];
+let currentActiveTab = 'photos';
+let currentPhotoIndex = 0;
+let currentVideoIndex = 0;
+
+// Open Fullscreen Memories Gallery Overlay
+function openMemoriesGallery(initialTab = 'photos') {
+  const modal = document.getElementById('memories-gallery-modal');
+  const dialog = document.getElementById('memories-gallery-dialog');
+  if (!modal) return;
+
+  switchMemoriesTab(initialTab === 'videos' ? 'videos' : 'photos');
+  renderMemoriesGallery();
+
+  modal.classList.remove('hidden');
+  requestAnimationFrame(() => {
+    modal.classList.remove('opacity-0', 'pointer-events-none');
+    modal.classList.add('opacity-100', 'pointer-events-auto');
+    if (dialog) {
+      dialog.classList.remove('scale-95');
+      dialog.classList.add('scale-100');
+    }
+  });
+
+  if (window.lucide) lucide.createIcons();
+}
+window.openMemoriesGallery = openMemoriesGallery;
+
+// Close Fullscreen Memories Gallery Overlay
+function closeMemoriesGallery() {
+  const modal = document.getElementById('memories-gallery-modal');
+  const dialog = document.getElementById('memories-gallery-dialog');
+  if (!modal) return;
+
+  if (dialog) {
+    dialog.classList.remove('scale-100');
+    dialog.classList.add('scale-95');
+  }
+  modal.classList.remove('opacity-100', 'pointer-events-auto');
+  modal.classList.add('opacity-0', 'pointer-events-none');
+
+  setTimeout(() => {
+    modal.classList.add('hidden');
+  }, 450);
+}
+window.closeMemoriesGallery = closeMemoriesGallery;
+
+// Switch Tab (Photos / Videos)
+function switchMemoriesTab(tab) {
+  currentActiveTab = tab;
+  const tabPhotosBtn = document.getElementById('memories-tab-photos');
+  const tabVideosBtn = document.getElementById('memories-tab-videos');
+  const photosSec = document.getElementById('memories-photos-section');
+  const videosSec = document.getElementById('memories-videos-section');
+
+  const activeTabClasses = ['bg-gradient-to-r', 'from-amber-500', 'via-pink-500', 'to-purple-600', 'text-white', 'shadow-lg'];
+  const inactiveTabClasses = ['text-slate-300', 'hover:text-white'];
+
+  if (tab === 'photos') {
+    if (tabPhotosBtn) {
+      tabPhotosBtn.classList.remove(...inactiveTabClasses);
+      tabPhotosBtn.classList.add(...activeTabClasses);
+    }
+    if (tabVideosBtn) {
+      tabVideosBtn.classList.remove(...activeTabClasses);
+      tabVideosBtn.classList.add(...inactiveTabClasses);
+    }
+    if (photosSec) photosSec.classList.remove('hidden');
+    if (videosSec) videosSec.classList.add('hidden');
+  } else {
+    if (tabVideosBtn) {
+      tabVideosBtn.classList.remove(...inactiveTabClasses);
+      tabVideosBtn.classList.add(...activeTabClasses);
+    }
+    if (tabPhotosBtn) {
+      tabPhotosBtn.classList.remove(...activeTabClasses);
+      tabPhotosBtn.classList.add(...inactiveTabClasses);
+    }
+    if (videosSec) videosSec.classList.remove('hidden');
+    if (photosSec) photosSec.classList.add('hidden');
+  }
+}
+
+// Render Gallery Contents
+function renderMemoriesGallery() {
+  const pCount = document.getElementById('memories-photos-count');
+  const vCount = document.getElementById('memories-videos-count');
+  if (pCount) pCount.textContent = MEMORIES_DATA.photos.length;
+  if (vCount) vCount.textContent = MEMORIES_DATA.videos.length;
+
+  // Render Photos (Polaroids)
+  const photosSec = document.getElementById('memories-photos-section');
+  if (photosSec) {
+    photosSec.innerHTML = '';
+    MEMORIES_DATA.photos.forEach((photo, idx) => {
+      const rot = POLAROID_ROTATIONS[idx % POLAROID_ROTATIONS.length];
+      const delay = (idx * 0.04).toFixed(2);
+
+      const card = document.createElement('div');
+      card.className = 'polaroid-card stagger-item';
+      card.style.transform = `rotate(${rot}deg)`;
+      card.style.animationDelay = `${delay}s`;
+
+      card.innerHTML = `
+        <div class="polaroid-img-wrap">
+          <img src="${photo.src}" alt="${photo.title}" loading="lazy" />
+        </div>
+        <div class="polaroid-caption">
+          <span>${photo.title}</span>
+        </div>
+      `;
+
+      card.addEventListener('click', () => {
+        openPhotoViewer(idx);
+      });
+
+      photosSec.appendChild(card);
+    });
+  }
+
+  // Render Videos (Cinematic Cards)
+  const videosSec = document.getElementById('memories-videos-section');
+  if (videosSec) {
+    videosSec.innerHTML = '';
+    MEMORIES_DATA.videos.forEach((vid, idx) => {
+      const delay = (idx * 0.06).toFixed(2);
+
+      const card = document.createElement('div');
+      card.className = 'memories-video-card stagger-item group';
+      card.style.animationDelay = `${delay}s`;
+
+      card.innerHTML = `
+        <div class="relative aspect-video rounded-xl overflow-hidden bg-slate-900">
+          <video src="${vid.src}" muted loop preload="metadata" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"></video>
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent flex items-center justify-center">
+            <div class="memories-play-btn group-hover:scale-110 transition-transform">
+              <i data-lucide="play" class="w-7 h-7 fill-current ml-1 text-white"></i>
+            </div>
+          </div>
+        </div>
+        <div class="p-3.5 flex items-center justify-between">
+          <div>
+            <h4 class="text-sm font-bold text-white tracking-wide">${vid.title}</h4>
+            <p class="text-xs text-amber-200/70 mt-0.5">🎬 Memory Video</p>
+          </div>
+          <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-white/10 text-white/80 border border-white/15">HD Video</span>
+        </div>
+      `;
+
+      const videoEl = card.querySelector('video');
+      card.addEventListener('mouseenter', () => videoEl && videoEl.play().catch(() => {}));
+      card.addEventListener('mouseleave', () => videoEl && videoEl.pause());
+
+      card.addEventListener('click', () => {
+        openVideoPlayer(idx);
+      });
+
+      videosSec.appendChild(card);
+    });
+  }
+
+  if (window.lucide) lucide.createIcons();
+}
+
+// ==========================================
+// 📷 CINEMATIC PHOTO VIEWER MODAL LOGIC
+// ==========================================
+function openPhotoViewer(index) {
+  if (index < 0) index = MEMORIES_DATA.photos.length - 1;
+  if (index >= MEMORIES_DATA.photos.length) index = 0;
+  currentPhotoIndex = index;
+
+  const photo = MEMORIES_DATA.photos[index];
+  const modal = document.getElementById('photo-viewer-modal');
+  const card = document.getElementById('photo-viewer-card');
+  const img = document.getElementById('photo-viewer-img');
+  const blurBg = document.getElementById('photo-viewer-blur-bg');
+  const counter = document.getElementById('photo-viewer-counter');
+  const title = document.getElementById('photo-viewer-title');
+  const paragraph = document.getElementById('photo-viewer-paragraph');
+
+  if (!modal || !photo) return;
+
+  if (blurBg) blurBg.src = photo.src;
+  if (img) img.src = photo.src;
+  if (counter) counter.textContent = `Photo ${index + 1} of ${MEMORIES_DATA.photos.length}`;
+  if (title) title.textContent = photo.title;
+  if (paragraph) paragraph.textContent = photo.caption;
+
+  modal.classList.remove('hidden');
+  requestAnimationFrame(() => {
+    modal.classList.remove('opacity-0', 'pointer-events-none');
+    modal.classList.add('opacity-100', 'pointer-events-auto');
+    if (card) {
+      card.classList.remove('scale-90', 'opacity-0');
+      card.classList.add('scale-100', 'opacity-100');
+    }
+  });
+
+  if (window.lucide) lucide.createIcons();
+}
+
+function closePhotoViewer() {
+  const modal = document.getElementById('photo-viewer-modal');
+  const card = document.getElementById('photo-viewer-card');
+  if (!modal) return;
+
+  if (card) {
+    card.classList.remove('scale-100', 'opacity-100');
+    card.classList.add('scale-90', 'opacity-0');
+  }
+  modal.classList.remove('opacity-100', 'pointer-events-auto');
+  modal.classList.add('opacity-0', 'pointer-events-none');
+
+  setTimeout(() => {
+    modal.classList.add('hidden');
+  }, 350);
+}
+
+function navigatePhotoViewer(direction) {
+  if (direction === 'next') {
+    openPhotoViewer(currentPhotoIndex + 1);
+  } else {
+    openPhotoViewer(currentPhotoIndex - 1);
+  }
+}
+
+// ==========================================
+// 🎬 CINEMATIC VIDEO PLAYER MODAL LOGIC
+// ==========================================
+function openVideoPlayer(index) {
+  if (index < 0) index = MEMORIES_DATA.videos.length - 1;
+  if (index >= MEMORIES_DATA.videos.length) index = 0;
+  currentVideoIndex = index;
+
+  const vid = MEMORIES_DATA.videos[index];
+  const modal = document.getElementById('video-player-modal');
+  const card = document.getElementById('video-player-card');
+  const videoEl = document.getElementById('video-player-element');
+  const counter = document.getElementById('video-player-counter');
+  const title = document.getElementById('video-player-title');
+  const playBtn = document.getElementById('vp-play-btn');
+  const progressBar = document.getElementById('vp-progress-bar');
+
+  if (!modal || !videoEl || !vid) return;
+
+  videoEl.src = vid.src;
+  if (counter) counter.textContent = `Video ${index + 1} of ${MEMORIES_DATA.videos.length}`;
+  if (title) title.textContent = vid.title;
+  if (progressBar) progressBar.value = 0;
+
+  modal.classList.remove('hidden');
+  requestAnimationFrame(() => {
+    modal.classList.remove('opacity-0', 'pointer-events-none');
+    modal.classList.add('opacity-100', 'pointer-events-auto');
+    if (card) {
+      card.classList.remove('scale-95', 'opacity-0');
+      card.classList.add('scale-100', 'opacity-100');
+    }
+  });
+
+  videoEl.play().then(() => {
+    if (playBtn) playBtn.innerHTML = '<i data-lucide="pause" class="w-5 h-5 fill-current"></i>';
+    if (window.lucide) lucide.createIcons();
+  }).catch(() => {
+    if (playBtn) playBtn.innerHTML = '<i data-lucide="play" class="w-5 h-5 fill-current"></i>';
+    if (window.lucide) lucide.createIcons();
+  });
+
+  if (window.lucide) lucide.createIcons();
+}
+
+function closeVideoPlayer() {
+  const modal = document.getElementById('video-player-modal');
+  const card = document.getElementById('video-player-card');
+  const videoEl = document.getElementById('video-player-element');
+
+  if (videoEl) videoEl.pause();
+  if (!modal) return;
+
+  if (card) {
+    card.classList.remove('scale-100', 'opacity-100');
+    card.classList.add('scale-95', 'opacity-0');
+  }
+  modal.classList.remove('opacity-100', 'pointer-events-auto');
+  modal.classList.add('opacity-0', 'pointer-events-none');
+
+  setTimeout(() => {
+    modal.classList.add('hidden');
+    if (videoEl) videoEl.src = '';
+  }, 350);
+}
+
+function navigateVideoPlayer(direction) {
+  if (direction === 'next') {
+    openVideoPlayer(currentVideoIndex + 1);
+  } else {
+    openVideoPlayer(currentVideoIndex - 1);
+  }
+}
+
+// ==========================================
 // 7. UI EVENT LISTENERS & CROSS-PLATFORM INPUTS (WINDOWS & ANDROID)
 // ==========================================
 function setupUIEventListeners() {
@@ -2830,6 +3106,131 @@ function setupUIEventListeners() {
   const specialGiftBtn = document.getElementById('special-gift-btn');
   if (specialGiftBtn) {
     specialGiftBtn.addEventListener('click', startSpecialGiftCountdown);
+  }
+
+  // Memories We’ll Always Treasure Gallery Button
+  const galleryMemoriesBtn = document.getElementById('gallery-memories-btn');
+  if (galleryMemoriesBtn) {
+    galleryMemoriesBtn.addEventListener('click', () => openMemoriesGallery('photos'));
+  }
+
+  // Memories Gallery Modal Close Button & Tabs
+  const memoriesCloseBtn = document.getElementById('memories-gallery-close');
+  if (memoriesCloseBtn) memoriesCloseBtn.addEventListener('click', closeMemoriesGallery);
+
+  const memoriesTabPhotos = document.getElementById('memories-tab-photos');
+  const memoriesTabVideos = document.getElementById('memories-tab-videos');
+  if (memoriesTabPhotos) memoriesTabPhotos.addEventListener('click', () => switchMemoriesTab('photos'));
+  if (memoriesTabVideos) memoriesTabVideos.addEventListener('click', () => switchMemoriesTab('videos'));
+
+  const memoriesModal = document.getElementById('memories-gallery-modal');
+  if (memoriesModal) {
+    memoriesModal.addEventListener('click', (e) => {
+      if (e.target === memoriesModal) closeMemoriesGallery();
+    });
+  }
+
+  // Photo Viewer Controls
+  const photoViewerClose = document.getElementById('photo-viewer-close');
+  const photoViewerPrev = document.getElementById('photo-viewer-prev');
+  const photoViewerNext = document.getElementById('photo-viewer-next');
+  const photoViewerModal = document.getElementById('photo-viewer-modal');
+
+  if (photoViewerClose) photoViewerClose.addEventListener('click', closePhotoViewer);
+  if (photoViewerPrev) photoViewerPrev.addEventListener('click', () => navigatePhotoViewer('prev'));
+  if (photoViewerNext) photoViewerNext.addEventListener('click', () => navigatePhotoViewer('next'));
+  if (photoViewerModal) {
+    photoViewerModal.addEventListener('click', (e) => {
+      if (e.target === photoViewerModal) closePhotoViewer();
+    });
+  }
+
+  // Video Player Controls
+  const videoPlayerClose = document.getElementById('video-player-close');
+  const videoPlayerPrev = document.getElementById('video-player-prev');
+  const videoPlayerNext = document.getElementById('video-player-next');
+  const videoPlayerModal = document.getElementById('video-player-modal');
+  const videoEl = document.getElementById('video-player-element');
+  const vpPlayBtn = document.getElementById('vp-play-btn');
+  const vpVolumeBtn = document.getElementById('vp-volume-btn');
+  const vpVolumeRange = document.getElementById('vp-volume-range');
+  const vpProgressBar = document.getElementById('vp-progress-bar');
+  const vpFullscreenBtn = document.getElementById('vp-fullscreen-btn');
+
+  if (videoPlayerClose) videoPlayerClose.addEventListener('click', closeVideoPlayer);
+  if (videoPlayerPrev) videoPlayerPrev.addEventListener('click', () => navigateVideoPlayer('prev'));
+  if (videoPlayerNext) videoPlayerNext.addEventListener('click', () => navigateVideoPlayer('next'));
+  if (videoPlayerModal) {
+    videoPlayerModal.addEventListener('click', (e) => {
+      if (e.target === videoPlayerModal) closeVideoPlayer();
+    });
+  }
+
+  const toggleVideoPlay = () => {
+    if (!videoEl) return;
+    if (videoEl.paused) {
+      videoEl.play();
+      if (vpPlayBtn) vpPlayBtn.innerHTML = '<i data-lucide="pause" class="w-5 h-5 fill-current"></i>';
+    } else {
+      videoEl.pause();
+      if (vpPlayBtn) vpPlayBtn.innerHTML = '<i data-lucide="play" class="w-5 h-5 fill-current"></i>';
+    }
+    if (window.lucide) lucide.createIcons();
+  };
+
+  if (vpPlayBtn) vpPlayBtn.addEventListener('click', toggleVideoPlay);
+  if (videoEl) {
+    videoEl.addEventListener('click', toggleVideoPlay);
+    videoEl.addEventListener('timeupdate', () => {
+      if (!videoEl.duration) return;
+      const pct = (videoEl.currentTime / videoEl.duration) * 100;
+      if (vpProgressBar) vpProgressBar.value = pct;
+
+      const formatTime = (sec) => {
+        const m = Math.floor(sec / 60);
+        const s = Math.floor(sec % 60);
+        return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+      };
+
+      const curEl = document.getElementById('vp-time-current');
+      const durEl = document.getElementById('vp-time-duration');
+      if (curEl) curEl.textContent = formatTime(videoEl.currentTime);
+      if (durEl) durEl.textContent = formatTime(videoEl.duration);
+    });
+  }
+
+  if (vpProgressBar) {
+    vpProgressBar.addEventListener('input', (e) => {
+      if (!videoEl || !videoEl.duration) return;
+      videoEl.currentTime = (videoEl.duration * e.target.value) / 100;
+    });
+  }
+
+  if (vpVolumeBtn && videoEl) {
+    vpVolumeBtn.addEventListener('click', () => {
+      videoEl.muted = !videoEl.muted;
+      vpVolumeBtn.innerHTML = videoEl.muted 
+        ? '<i data-lucide="volume-x" class="w-5 h-5 text-pink-400"></i>'
+        : '<i data-lucide="volume-2" class="w-5 h-5"></i>';
+      if (window.lucide) lucide.createIcons();
+    });
+  }
+
+  if (vpVolumeRange && videoEl) {
+    vpVolumeRange.addEventListener('input', (e) => {
+      videoEl.volume = e.target.value;
+      videoEl.muted = e.target.value == 0;
+    });
+  }
+
+  if (vpFullscreenBtn && videoEl) {
+    vpFullscreenBtn.addEventListener('click', () => {
+      if (videoEl.requestFullscreen) {
+        videoEl.requestFullscreen();
+      } else if (videoEl.webkitRequestFullscreen) {
+        videoEl.webkitRequestFullscreen();
+      }
+    });
   }
 
   // Manual Modal Navigation Listeners (Previous / Next Arrows)
@@ -2924,6 +3325,9 @@ function setupUIEventListeners() {
     });
   }
 
+  // Setup Custom Photo & Paragraph Upload Listeners
+  setupUploadMemoryListeners();
+
   // Full-Screen Image Viewer Control Listeners
   const fsCloseBtn = document.getElementById('fs-close-btn');
   const fsPrevBtn = document.getElementById('fs-prev-btn');
@@ -2961,39 +3365,60 @@ function setupUIEventListeners() {
     // Ignore input if typing in an input element
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
+    const videoModal = document.getElementById('video-player-modal');
+    const photoModal = document.getElementById('photo-viewer-modal');
+    const memoriesModal = document.getElementById('memories-gallery-modal');
     const fsViewer = document.getElementById('fullscreen-image-viewer');
+
+    const isVideoModalActive = videoModal && !videoModal.classList.contains('hidden');
+    const isPhotoModalActive = photoModal && !photoModal.classList.contains('hidden');
+    const isMemoriesActive = memoriesModal && !memoriesModal.classList.contains('hidden');
     const isFsActive = fsViewer && fsViewer.classList.contains('fs-viewer-active');
 
     switch (e.code) {
       case 'Space':
-        if (!isFsActive) {
+        if (!isFsActive && !isVideoModalActive && !isPhotoModalActive && !isMemoriesActive) {
           e.preventDefault();
           toggleUnforgettableMode();
         }
         break;
       case 'Escape':
-        if (isFsActive) {
+        if (isVideoModalActive) {
+          closeVideoPlayer();
+        } else if (isPhotoModalActive) {
+          closePhotoViewer();
+        } else if (isMemoriesActive) {
+          closeMemoriesGallery();
+        } else if (isFsActive) {
           closeFullscreenViewer();
         } else {
           closeMediaModal();
         }
         break;
       case 'ArrowLeft':
-        if (isFsActive) {
+        if (isVideoModalActive) {
+          navigateVideoPlayer('prev');
+        } else if (isPhotoModalActive) {
+          navigatePhotoViewer('prev');
+        } else if (isFsActive) {
           navigateFullscreenViewer('prev');
         } else if (mediaModal && mediaModal.classList.contains('modal-active')) {
           navigateSlideshow('prev');
         }
         break;
       case 'ArrowRight':
-        if (isFsActive) {
+        if (isVideoModalActive) {
+          navigateVideoPlayer('next');
+        } else if (isPhotoModalActive) {
+          navigatePhotoViewer('next');
+        } else if (isFsActive) {
           navigateFullscreenViewer('next');
         } else if (mediaModal && mediaModal.classList.contains('modal-active')) {
           navigateSlideshow('next');
         }
         break;
       case 'KeyT':
-        if (!isFsActive) {
+        if (!isFsActive && !isMemoriesActive) {
           activeThemeIndex = (activeThemeIndex + 1) % CAKE_THEMES.length;
           createCake();
         }

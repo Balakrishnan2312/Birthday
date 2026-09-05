@@ -1,7 +1,9 @@
-const CACHE_NAME = 'birthday-3d-v7';
+const CACHE_NAME = 'birthday-3d-v8';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
+  './admin.html',
+  './admin.js',
   './style.css',
   './main.js',
   './shobanaQuiz.js',

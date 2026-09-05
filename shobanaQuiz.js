@@ -75,6 +75,51 @@
 
   let currentQuestionIndex = 0;
   let isTransitioning = false;
+  let currentSessionId = 'sub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+  let currentSessionAnswers = [];
+
+  function recordAnswer(questionId, questionText, answerText) {
+    const existingIndex = currentSessionAnswers.findIndex(a => a.questionId === questionId);
+    const item = {
+      questionId: questionId,
+      question: questionText,
+      answer: answerText,
+      answeredAt: new Date().toISOString()
+    };
+    if (existingIndex >= 0) {
+      currentSessionAnswers[existingIndex] = item;
+    } else {
+      currentSessionAnswers.push(item);
+    }
+    saveCurrentSession(false);
+  }
+
+  function saveCurrentSession(completed = false) {
+    try {
+      const raw = localStorage.getItem('shobana_quiz_submissions');
+      let submissions = raw ? JSON.parse(raw) : [];
+
+      const existingIndex = submissions.findIndex(s => s.id === currentSessionId);
+      const submissionObj = {
+        id: currentSessionId,
+        userName: 'Shobana',
+        submittedAt: new Date().toISOString(),
+        answers: currentSessionAnswers,
+        totalQuestions: QUIZ_QUESTIONS.length,
+        completedQuestions: currentSessionAnswers.length,
+        completed: completed
+      };
+
+      if (existingIndex >= 0) {
+        submissions[existingIndex] = submissionObj;
+      } else {
+        submissions.unshift(submissionObj);
+      }
+      localStorage.setItem('shobana_quiz_submissions', JSON.stringify(submissions));
+    } catch (e) {
+      console.error('Error saving quiz submission:', e);
+    }
+  }
 
   // Web Audio Synthesizer for lag-free audio chimes
   let audioCtx = null;
@@ -245,6 +290,8 @@
         if (isTransitioning) return;
         isTransitioning = true;
 
+        recordAnswer(q.id, q.question, val);
+
         playChime('select');
         submitBtn.classList.add('opacity-80', 'scale-98');
         showReactionToast(q.reaction || 'Answer saved! ❤️');
@@ -294,6 +341,11 @@
   function onOptionSelected(btnEl, optionData) {
     if (isTransitioning) return;
     isTransitioning = true;
+
+    const currentQ = QUIZ_QUESTIONS[currentQuestionIndex];
+    if (currentQ) {
+      recordAnswer(currentQ.id, currentQ.question, optionData.text);
+    }
 
     playChime('select');
 
@@ -357,6 +409,7 @@
   // Phase 4: Final Quiz Completion Sequence
   function triggerCompletionSequence() {
     playChime('complete');
+    saveCurrentSession(true);
 
     const quizLayer = document.getElementById('shobanaQuizLayer');
     const completionLayer = document.getElementById('shobanaCompletionLayer');
@@ -434,6 +487,8 @@
       });
     }
 
+    currentSessionId = 'sub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+    currentSessionAnswers = [];
     currentQuestionIndex = 0;
     renderQuestion(0);
   }

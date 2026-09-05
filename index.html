@@ -178,16 +178,7 @@
     <div
       class="relative w-full max-w-[92%] sm:max-w-lg rounded-2xl sm:rounded-3xl p-6 sm:p-10 bg-slate-950/30 border border-white/30 shadow-[0_0_80px_rgba(244,114,182,0.3)] flex flex-col items-center text-center backdrop-blur-lg transition-all duration-500 sq-glass-card my-auto">
 
-      <div class="text-4xl sm:text-5xl mb-3 animate-bounce">🎉</div>
-
-      <h2 id="sq-complete-text"
-        class="text-2xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-pink-300 to-purple-200 tracking-wide leading-relaxed mb-2">
-        ✨ QUIZ COMPLETED! ✨
-      </h2>
-
-      <p class="text-sm sm:text-base text-pink-200/90 font-medium mb-6">
-        Ready for your special birthday surprise? 🎁
-      </p>
+      <div class="text-4xl sm:text-5xl mb-6 animate-bounce">🤍</div>
 
       <!-- Surprise Button -->
       <button id="sq-surprise-btn"
@@ -245,12 +236,16 @@
   <!-- STAGE 2 — 3D BIRTHDAY CAKE EXPERIENCE -->
   <div id="cake-experience" class="cake-experience-container">
 
-    <!-- Top-Left Back Navigation Button -->
-    <button id="cake-back-btn" title="Back to Quiz"
-      class="fixed top-4 left-4 z-40 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-slate-900/80 border border-pink-400/40 text-pink-200 text-xs sm:text-sm font-bold shadow-2xl backdrop-blur-xl hover:bg-slate-800 hover:text-white hover:border-pink-400 hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-2 cursor-pointer">
-      <i data-lucide="arrow-left" class="w-4 h-4 text-pink-400"></i>
-      <span>Back</span>
-    </button>
+    <!-- Top Navigation Buttons -->
+    <div class="fixed top-4 left-4 right-4 z-40 flex items-center justify-between pointer-events-none">
+      <!-- Top-Left Back Navigation Button -->
+      <button id="cake-back-btn" title="Back to Quiz"
+        class="pointer-events-auto px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-slate-900/80 border border-pink-400/40 text-pink-200 text-xs sm:text-sm font-bold shadow-2xl backdrop-blur-xl hover:bg-slate-800 hover:text-white hover:border-pink-400 hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-2 cursor-pointer">
+        <i data-lucide="arrow-left" class="w-4 h-4 text-pink-400"></i>
+        <span>Back</span>
+      </button>
+
+    </div>
 
     <!-- 3D Canvas Container -->
     <div id="canvas-container" class="fixed inset-0 z-0"></div>
@@ -258,95 +253,214 @@
     <!-- Ambient Glow Overlay -->
     <div class="fixed inset-0 pointer-events-none z-10 bg-radial-gradient"></div>
 
-    <!-- 3D BOOKLET LIGHTBOX MEDIA MODAL (Transparent Background) -->
+    <!-- PHOTO & PARAGRAPH LIGHTBOX MEDIA MODAL -->
     <div id="media-modal"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/20 backdrop-blur-[2px] opacity-0 pointer-events-none transition-all duration-300">
+      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 p-3 sm:p-6 select-none overflow-y-auto">
       <div
-        class="relative max-w-5xl w-11/12 max-h-[90vh] booklet-card-glass rounded-3xl p-2 sm:p-4 flex flex-col items-center justify-center transform scale-90 transition-all duration-300">
+        class="relative max-w-3xl w-full my-auto booklet-card-glass rounded-3xl p-4 sm:p-6 flex flex-col items-center justify-center transform scale-95 transition-all duration-300 border border-pink-500/20 shadow-2xl backdrop-blur-2xl">
 
         <!-- Close Button -->
-        <button id="modal-close"
-          class="absolute top-2 right-2 sm:top-4 sm:right-4 z-30 text-amber-950 bg-amber-100/90 hover:bg-amber-200 p-2.5 rounded-full shadow-lg border border-amber-300/80 backdrop-blur-md transition hover:scale-105 active:scale-95 cursor-pointer">
+        <button id="modal-close" title="Close experience"
+          class="absolute top-3 right-3 sm:top-4 sm:right-4 z-30 text-pink-200 bg-slate-900/80 hover:bg-pink-500 hover:text-white p-2.5 rounded-full shadow-lg border border-pink-400/30 backdrop-blur-md transition hover:scale-105 active:scale-95 cursor-pointer">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
 
-        <!-- Manual Previous Arrow Button -->
-        <button id="modal-prev-btn"
-          class="absolute left-1 sm:left-3 top-1/2 -translate-y-1/2 z-30 text-amber-900 bg-amber-100/90 hover:bg-amber-200 p-3 sm:p-3.5 rounded-full shadow-xl border border-amber-300/80 backdrop-blur-md transition hover:scale-110 active:scale-95 group cursor-pointer">
-          <i data-lucide="chevron-left" class="w-6 h-6 transition-transform group-hover:-translate-x-0.5"></i>
-        </button>
+        <!-- PHOTO & PARAGRAPH CARD -->
+        <div id="photo-memory-card" class="w-full flex flex-col items-center">
 
-        <!-- Manual Next Arrow Button -->
-        <button id="modal-next-btn"
-          class="absolute right-1 sm:right-3 top-1/2 -translate-y-1/2 z-30 text-amber-900 bg-amber-100/90 hover:bg-amber-200 p-3 sm:p-3.5 rounded-full shadow-xl border border-amber-300/80 backdrop-blur-md transition hover:scale-110 active:scale-95 group cursor-pointer">
-          <i data-lucide="chevron-right" class="w-6 h-6 transition-transform group-hover:translate-x-0.5"></i>
-        </button>
-
-        <!-- 3D BOOKLET CONTAINER -->
-        <div id="booklet-wrapper" class="w-full flex flex-col items-center justify-center">
-          <!-- Main 3D Book Frame -->
-          <div id="booklet-book" class="booklet-book">
-            <!-- Spine shadow center line -->
-            <div class="booklet-spine"></div>
-
-            <!-- Left Page Display -->
-            <div id="booklet-page-left" class="booklet-page booklet-page-left">
-              <div class="booklet-page-inner" id="page-left-content">
-                <!-- Decorative / Previous content -->
-              </div>
+          <!-- Card Top Bar: Counter & Add Photo/Note Button -->
+          <div
+            class="w-full flex flex-wrap items-center justify-between gap-2 pb-3 mb-3 border-b border-white/10 pr-10 sm:pr-12">
+            <div class="flex items-center gap-2">
+              <span id="modal-indicator"
+                class="px-3.5 py-1 bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-400/40 rounded-full font-mono font-bold text-pink-200 text-xs shadow-inner">
+                Memory 1 of 11
+              </span>
             </div>
 
-            <!-- Right Page Display (Main Active Media Page) -->
-            <div id="booklet-page-right" class="booklet-page booklet-page-right">
-              <div class="booklet-page-inner" id="page-right-content">
-                <!-- Main image / video content -->
-              </div>
-            </div>
+            <div class="flex items-center gap-2">
+              <button id="modal-download-btn" title="Download currently displayed photo"
+                class="px-3 py-1.5 bg-slate-800/80 hover:bg-slate-700 text-pink-200 text-xs font-semibold rounded-full border border-pink-400/30 backdrop-blur-md transition hover:scale-105 active:scale-95 flex items-center gap-1.5 cursor-pointer">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                <span class="hidden sm:inline">Download</span>
+              </button>
 
-            <!-- Animated 3D Flipping Page Leaf -->
-            <div id="booklet-flip-leaf" class="booklet-flip-leaf">
-              <div class="booklet-leaf-front" id="leaf-front-content"></div>
-              <div class="booklet-leaf-back" id="leaf-back-content"></div>
-              <div class="booklet-leaf-shadow" id="leaf-shadow"></div>
-            </div>
-
-            <!-- Page Corner Click Prompts -->
-            <div id="corner-flip-next" class="booklet-corner-fold booklet-corner-tr" title="Click to flip page">
-            </div>
-            <div id="corner-flip-prev" class="booklet-corner-fold booklet-corner-tl" title="Click to flip back">
+              <button id="add-memory-btn" title="Upload custom photo and note"
+                class="px-3 py-1.5 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white text-xs font-bold rounded-full shadow-md border border-pink-300/40 backdrop-blur-md transition hover:scale-105 active:scale-95 flex items-center gap-1.5 cursor-pointer">
+                <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+                <span>Upload Photo & Note</span>
+              </button>
             </div>
           </div>
 
-          <!-- Booklet Footer Bar with Gold Page Indicator & Download Option -->
-          <div class="mt-4 flex flex-wrap items-center justify-center gap-3 w-full max-w-2xl px-4 text-xs font-medium">
-            <div id="modal-indicator"
-              class="px-4 py-1.5 bg-amber-100/90 border border-amber-300/80 rounded-full font-serif font-bold text-amber-950 shadow-md backdrop-blur-md">
-              Page 1 of 16
+          <!-- Slide Content Container (Photo + Paragraph) -->
+          <div id="memory-slide-container"
+            class="w-full flex flex-col items-center transition-all duration-300 ease-out">
+            <!-- Prominent Photo Display -->
+            <div id="media-frame-container"
+              class="relative w-full max-h-[48vh] sm:max-h-[52vh] flex items-center justify-center overflow-hidden rounded-2xl border border-white/15 bg-slate-950/70 shadow-2xl group">
+              <img id="memory-photo" src="" alt="Memory Photo"
+                class="max-w-full max-h-[48vh] sm:max-h-[52vh] w-auto h-auto object-contain rounded-xl transition-transform duration-500 hover:scale-[1.02] cursor-pointer"
+                title="Click to view full screen 🔍" />
+              <video id="memory-video" src="" controls autoplay muted playsinline loop
+                class="hidden max-w-full max-h-[48vh] sm:max-h-[52vh] w-auto h-auto object-contain rounded-xl"></video>
             </div>
-            <button id="modal-download-btn" title="Download currently displayed image"
-              class="px-4 py-1.5 bg-gradient-to-r from-amber-500 via-pink-500 to-purple-600 hover:from-amber-600 hover:to-purple-700 text-white font-bold rounded-full shadow-md border border-amber-300/60 backdrop-blur-md transition hover:scale-105 active:scale-95 flex items-center gap-1.5 cursor-pointer">
-              <i data-lucide="download" class="w-4 h-4"></i>
-              <span>Download Photo</span>
+
+            <!-- Paragraph Display Directly Underneath Photo -->
+            <div class="w-full mt-3 sm:mt-4 px-1 sm:px-3 text-center">
+              <p id="memory-paragraph"
+                class="text-sm sm:text-base font-medium text-pink-100/90 leading-relaxed tracking-wide font-sans py-2.5 px-4 rounded-2xl bg-slate-900/60 border border-white/10 shadow-inner">
+                <!-- Dedicated paragraph text for active photo -->
+              </p>
+            </div>
+          </div>
+
+          <!-- Bottom Navigation Bar (Next Button directly below paragraph) -->
+          <div class="w-full mt-4 pt-3 border-t border-white/10 flex items-center justify-between gap-3">
+            <button id="modal-prev-btn" title="Previous photo"
+              class="px-4 py-2 sm:px-5 sm:py-2.5 bg-slate-800/80 hover:bg-slate-700 text-pink-200 font-bold text-xs sm:text-sm rounded-xl border border-pink-400/20 backdrop-blur-md transition hover:scale-105 active:scale-95 flex items-center gap-1.5 cursor-pointer">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i>
+              <span>Previous</span>
+            </button>
+
+            <button id="modal-next-btn" title="Next photo and paragraph"
+              class="px-6 py-2.5 sm:px-8 sm:py-3 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-600 hover:from-pink-600 hover:to-indigo-700 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-lg shadow-pink-500/25 border border-pink-300/40 backdrop-blur-md transition-all hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer">
+              <span>Next</span>
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
             </button>
           </div>
+
         </div>
 
-        <!-- Hidden Title Element -->
+        <!-- Hidden Title Element for backward compatibility -->
         <p id="modal-title" class="hidden"></p>
       </div>
     </div>
 
+    <!-- UPLOAD CUSTOM PHOTO & PARAGRAPH MODAL -->
+    <div id="upload-memory-modal"
+      class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/85 backdrop-blur-xl opacity-0 pointer-events-none transition-all duration-300 p-4">
+      <div
+        class="w-full max-w-md bg-slate-900/95 border border-pink-500/30 rounded-3xl p-5 sm:p-6 shadow-2xl text-white relative backdrop-blur-2xl">
+        <button id="upload-memory-close" type="button"
+          class="absolute top-4 right-4 p-2 text-slate-400 hover:text-white rounded-full bg-slate-800/80 transition cursor-pointer">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+        <h3
+          class="text-lg sm:text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-300 via-purple-200 to-amber-200 mb-1 flex items-center gap-2">
+          <i data-lucide="image-plus" class="w-5 h-5 text-pink-400"></i>
+          <span>Add Custom Photo & Paragraph</span>
+        </h3>
+        <p class="text-xs text-slate-400 mb-4">Upload a photo and assign a special memory paragraph to it.</p>
+
+        <form id="upload-memory-form" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-pink-200 mb-1.5">Select Photo from Device</label>
+            <input type="file" id="memory-file-input" accept="image/*"
+              class="w-full text-xs text-slate-300 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-pink-500 file:text-white hover:file:bg-pink-600 cursor-pointer bg-slate-950/80 p-2 rounded-xl border border-white/15"
+              required />
+            <div id="memory-upload-preview"
+              class="mt-2 hidden rounded-xl overflow-hidden max-h-36 border border-white/10 bg-slate-950 flex items-center justify-center">
+              <img id="memory-upload-img-preview" src="" class="max-h-36 w-auto object-contain" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-pink-200 mb-1.5">Paragraph for this Photo</label>
+            <textarea id="memory-paragraph-input" rows="4"
+              placeholder="Enter the special paragraph to display directly under this photo..."
+              class="w-full text-xs sm:text-sm p-3 rounded-xl bg-slate-950/80 border border-white/15 text-white placeholder-slate-500 focus:outline-none focus:border-pink-500 transition shadow-inner"
+              required></textarea>
+          </div>
+
+          <div class="flex items-center justify-end gap-2 pt-2 border-t border-white/10">
+            <button type="button" id="upload-memory-cancel"
+              class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold hover:bg-slate-700 transition cursor-pointer">Cancel</button>
+            <button type="submit"
+              class="px-5 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs font-bold shadow-md hover:scale-105 active:scale-95 transition cursor-pointer">Save
+              & Add Slide</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- FLOATING BOTTOM ACTION BUTTONS -->
-    <div class="fixed bottom-6 left-6 z-20 flex flex-wrap items-center gap-3">
+    <div class="fixed bottom-6 left-6 right-6 z-20 flex flex-wrap items-center gap-3 pointer-events-none">
       <button id="blow-btn"
-        class="liquid-glass-btn py-2.5 px-4 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 tracking-wide text-white cursor-pointer">
-        <span id="blow-text">🤍 Let’s make it unforgettable!</span>
+        class="pointer-events-auto liquid-glass-btn py-2.5 px-4 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 tracking-wide text-white cursor-pointer">
+        <span id="blow-text">💜 Let’s make it unforgettable!</span>
       </button>
 
       <button id="special-gift-btn"
-        class="liquid-glass-btn py-2.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 tracking-wide text-white border border-pink-400/40 bg-gradient-to-r from-pink-500/30 to-purple-600/30 hover:from-pink-500/50 hover:to-purple-600/50 cursor-pointer shadow-lg backdrop-blur-md hover:scale-105 active:scale-95 transition-all">
+        class="pointer-events-auto liquid-glass-btn py-2.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 tracking-wide text-white border border-pink-400/40 bg-gradient-to-r from-pink-500/30 to-purple-600/30 hover:from-pink-500/50 hover:to-purple-600/50 cursor-pointer shadow-lg backdrop-blur-md hover:scale-105 active:scale-95 transition-all">
         <span>🎁 Special gift for you</span>
       </button>
+
+      <button id="gallery-memories-btn"
+        class="pointer-events-auto liquid-glass-btn py-2.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 tracking-wide text-white border border-cyan-400/40 bg-gradient-to-r from-cyan-500/30 via-purple-600/30 to-pink-500/30 hover:from-cyan-500/50 hover:to-pink-500/50 cursor-pointer shadow-lg backdrop-blur-md hover:scale-105 active:scale-95 transition-all">
+        <span>Memories We’ll Always Treasure 🧿</span>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 🧿 MEMORIES WE'LL ALWAYS TREASURE GALLERY MODAL -->
+  <!-- ========================================== -->
+  <div id="memories-gallery-modal"
+    class="fixed inset-0 z-[9999] hidden opacity-0 pointer-events-none transition-all duration-500 bg-slate-950/95 backdrop-blur-3xl flex flex-col p-4 sm:p-8 select-none font-sans overflow-hidden">
+
+    <!-- Ambient Background Glow Orbs -->
+    <div class="absolute -top-32 -left-32 w-96 h-96 bg-cyan-600/15 rounded-full blur-[160px] pointer-events-none"></div>
+    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-purple-600/15 rounded-full blur-[160px] pointer-events-none">
+    </div>
+    <div
+      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-pink-500/10 rounded-full blur-[180px] pointer-events-none">
+    </div>
+
+    <!-- Gallery Header -->
+    <div
+      class="relative w-full max-w-6xl mx-auto z-20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-white/10 shrink-0">
+      <div>
+        <h2
+          class="text-xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-pink-300 to-purple-200 tracking-wide flex items-center gap-2">
+          <span>Memories We’ll Always Treasure</span> 🧿
+        </h2>
+        <p class="text-xs sm:text-sm text-pink-200/80 font-medium mt-1">
+          Explore all memory photos & videos
+        </p>
+      </div>
+
+      <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+        <!-- Filter Tabs -->
+        <div class="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-900/80 border border-white/15 backdrop-blur-md">
+          <button id="gallery-filter-all"
+            class="gallery-tab-btn px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer bg-gradient-to-r from-pink-500 to-purple-600 text-white">
+            All (16)
+          </button>
+          <button id="gallery-filter-photos"
+            class="gallery-tab-btn px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer text-slate-300 hover:text-white">
+            📷 Photos (11)
+          </button>
+          <button id="gallery-filter-videos"
+            class="gallery-tab-btn px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer text-slate-300 hover:text-white">
+            🎬 Videos (5)
+          </button>
+        </div>
+
+        <!-- Close Button -->
+        <button id="gallery-close-btn" title="Close Gallery"
+          class="p-2.5 sm:p-3 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-white/20 text-white/90 hover:text-white shadow-xl backdrop-blur-md transition hover:scale-105 active:scale-95 cursor-pointer shrink-0">
+          <i data-lucide="x" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Gallery Grid Container -->
+    <div class="relative w-full max-w-6xl mx-auto flex-1 overflow-y-auto pt-6 pb-8 pr-1 z-20">
+      <div id="gallery-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <!-- Rendered dynamically -->
+      </div>
     </div>
 
   </div>
@@ -356,23 +470,17 @@
   <!-- ========================================== -->
   <div id="gift-countdown-overlay"
     class="fixed inset-0 z-[10001] hidden opacity-0 pointer-events-none transition-all duration-500 bg-slate-950/95 backdrop-blur-3xl flex flex-col items-center justify-center p-6 text-center select-none font-sans overflow-hidden">
-    
+
     <!-- Ambient Background Glow Orbs -->
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-pink-500/20 rounded-full blur-[160px] pointer-events-none"></div>
+    <div
+      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-pink-500/20 rounded-full blur-[160px] pointer-events-none">
+    </div>
 
     <div class="relative z-10 flex flex-col items-center justify-center max-w-md">
-      <div class="text-pink-300 text-sm sm:text-base font-bold uppercase tracking-widest mb-4">
-        🎁 Special Gift Countdown 🎁
-      </div>
-
       <!-- Countdown Number Display -->
       <div id="countdown-number"
         class="text-7xl sm:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-pink-400 to-purple-300 drop-shadow-[0_0_35px_rgba(244,114,182,0.8)] transition-all duration-300 transform scale-50 opacity-0">
         3
-      </div>
-
-      <div id="countdown-subtext" class="text-base sm:text-xl font-bold text-white/90 mt-6 tracking-wide">
-        Get ready for your surprise... ❤️
       </div>
     </div>
 
@@ -386,68 +494,47 @@
 
     <!-- Ambient Background Glow Orbs -->
     <div class="absolute -top-32 -left-32 w-96 h-96 bg-pink-600/15 rounded-full blur-[160px] pointer-events-none"></div>
-    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-purple-600/15 rounded-full blur-[160px] pointer-events-none"></div>
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/10 rounded-full blur-[180px] pointer-events-none"></div>
-
-    <!-- TOP HEADER CONTROL BAR -->
-    <div class="relative w-full max-w-6xl z-20 flex items-center justify-between pt-2 px-2 sm:px-4">
-      
-      <!-- Counter Badge -->
-      <div id="fs-counter-badge"
-        class="px-4 py-1.5 rounded-full bg-slate-900/80 border border-amber-400/40 text-amber-300 text-xs sm:text-sm font-bold tracking-wider shadow-lg backdrop-blur-md flex items-center gap-2">
-        <i data-lucide="image" class="w-4 h-4 text-amber-400"></i>
-        <span id="fs-counter-text">1 / 16</span>
-      </div>
-
-      <!-- Action Buttons Group (Download + Close) -->
-      <div class="flex items-center gap-3">
-        <!-- Download Button -->
-        <button id="fs-download-btn" title="Download Image (↓)"
-          class="px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-gradient-to-r from-amber-500 via-pink-500 to-purple-600 hover:from-amber-600 hover:to-purple-700 text-white text-xs sm:text-sm font-bold shadow-xl border border-amber-300/50 backdrop-blur-md transition hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer">
-          <i data-lucide="download" class="w-4 h-4"></i>
-          <span class="hidden sm:inline">Download</span>
-        </button>
-
-        <!-- Close Button -->
-        <button id="fs-close-btn" title="Close (Esc)"
-          class="p-2.5 sm:p-3 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-white/20 text-white/90 hover:text-white shadow-xl backdrop-blur-md transition hover:scale-105 active:scale-95 cursor-pointer">
-          <i data-lucide="x" class="w-5 h-5 sm:w-6 sm:h-6"></i>
-        </button>
-      </div>
+    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-purple-600/15 rounded-full blur-[160px] pointer-events-none">
+    </div>
+    <div
+      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/10 rounded-full blur-[180px] pointer-events-none">
     </div>
 
-    <!-- MAIN DISPLAY AREA WITH SIDE ARROWS -->
+    <!-- TOP HEADER CONTROL BAR (Close Button Only) -->
+    <div class="relative w-full max-w-6xl z-20 flex items-center justify-end pt-2 px-2 sm:px-4">
+      <!-- Close Button -->
+      <button id="fs-close-btn" title="Close (Esc)"
+        class="p-2.5 sm:p-3 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-white/20 text-white/90 hover:text-white shadow-xl backdrop-blur-md transition hover:scale-105 active:scale-95 cursor-pointer">
+        <i data-lucide="x" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+      </button>
+    </div>
+
+    <!-- MAIN DISPLAY AREA WITH NAVIGATION BUTTONS -->
     <div class="relative w-full max-w-6xl flex-1 flex items-center justify-center my-auto p-2 sm:p-4">
-      
+
       <!-- Previous Button (Left Arrow) -->
-      <button id="fs-prev-btn" title="Previous Image (←)"
+      <button id="fs-prev-btn" title="Previous (←)"
         class="absolute left-2 sm:left-6 z-30 p-3.5 sm:p-4 rounded-full bg-slate-900/75 hover:bg-pink-600/80 border border-white/20 hover:border-pink-300 text-white shadow-2xl backdrop-blur-xl transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer group">
-        <i data-lucide="chevron-left" class="w-6 h-6 sm:w-7 sm:h-7 transition-transform group-hover:-translate-x-0.5"></i>
+        <i data-lucide="chevron-left"
+          class="w-6 h-6 sm:w-7 sm:h-7 transition-transform group-hover:-translate-x-0.5"></i>
       </button>
 
-      <!-- Center Media Container (Image or Video) -->
+      <!-- Center Media Container -->
       <div id="fs-media-container"
-        class="relative max-w-full max-h-[78vh] sm:max-h-[82vh] flex items-center justify-center transition-all duration-500 transform scale-90 opacity-0 rounded-2xl overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.8)]">
+        class="relative max-w-full max-h-[85vh] flex items-center justify-center transition-all duration-500 transform scale-90 opacity-0 rounded-2xl overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.8)]">
         <img id="fs-active-img" src="" alt="Full Screen Memory"
-          class="max-w-full max-h-[78vh] sm:max-h-[82vh] object-contain rounded-2xl shadow-2xl border border-white/10 select-none transition-all duration-300" />
+          class="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl border border-white/10 select-none transition-all duration-300" />
         <video id="fs-active-video" src="" controls autoplay muted loop
-          class="hidden max-w-full max-h-[78vh] sm:max-h-[82vh] object-contain rounded-2xl shadow-2xl border border-white/10" />
+          class="hidden max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl border border-white/10" />
       </div>
 
       <!-- Next Button (Right Arrow) -->
-      <button id="fs-next-btn" title="Next Image (→)"
+      <button id="fs-next-btn" title="Next (→)"
         class="absolute right-2 sm:right-6 z-30 p-3.5 sm:p-4 rounded-full bg-slate-900/75 hover:bg-pink-600/80 border border-white/20 hover:border-pink-300 text-white shadow-2xl backdrop-blur-xl transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer group">
-        <i data-lucide="chevron-right" class="w-6 h-6 sm:w-7 sm:h-7 transition-transform group-hover:translate-x-0.5"></i>
+        <i data-lucide="chevron-right"
+          class="w-6 h-6 sm:w-7 sm:h-7 transition-transform group-hover:translate-x-0.5"></i>
       </button>
 
-    </div>
-
-    <!-- BOTTOM CAPTION / FOOTER BAR -->
-    <div class="relative w-full max-w-xl text-center pb-2 z-20">
-      <div id="fs-caption-box"
-        class="inline-block px-5 py-2 rounded-full bg-slate-900/70 border border-white/15 text-pink-200 text-xs sm:text-sm font-semibold shadow-lg backdrop-blur-md">
-        <span id="fs-caption-text">✨ Birthday Memory Photo ✨</span>
-      </div>
     </div>
 
   </div>
