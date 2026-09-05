@@ -185,6 +185,25 @@
     const introLayer = document.getElementById('shobanaIntroLayer');
     if (!introLayer) return;
 
+    // Bind Quiz Back Button
+    const backBtn = document.getElementById('sq-quiz-back-btn');
+    if (backBtn) {
+      backBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (window.AppNavigation) {
+          window.AppNavigation.goBack();
+        } else if (currentQuestionIndex > 0) {
+          currentQuestionIndex--;
+          renderQuestion(currentQuestionIndex);
+        }
+      });
+    }
+
+    if (window.AppNavigation) {
+      window.AppNavigation.replaceState({ type: 'intro' });
+    }
+
     playOpeningIntroSequence();
   }
 
@@ -235,6 +254,10 @@
       setTimeout(() => {
         quizLayer.classList.remove('opacity-0', 'scale-95');
         quizLayer.classList.add('opacity-100', 'scale-100');
+        currentQuestionIndex = 0;
+        if (window.AppNavigation) {
+          window.AppNavigation.replaceState({ type: 'quiz', index: 0 });
+        }
         renderQuestion(0);
       }, 100);
     }
@@ -242,6 +265,9 @@
 
   // Phase 2: Render Question
   function renderQuestion(index) {
+    currentQuestionIndex = index;
+    isTransitioning = false;
+
     const q = QUIZ_QUESTIONS[index];
     if (!q) return;
 
@@ -250,8 +276,20 @@
     const titleEl = document.getElementById('sq-question-title');
     const optionsContainer = document.getElementById('sq-options-container');
     const cardContent = document.getElementById('sq-card-content');
+    const backBtn = document.getElementById('sq-quiz-back-btn');
 
     if (!optionsContainer || !cardContent) return;
+
+    // Toggle Quiz Back Button Visibility
+    if (backBtn) {
+      if (index > 0) {
+        backBtn.classList.remove('hidden');
+        backBtn.style.display = 'flex';
+      } else {
+        backBtn.classList.add('hidden');
+        backBtn.style.display = 'none';
+      }
+    }
 
     // Update Header & Progress Bar
     const questionNum = (index + 1).toString().padStart(2, '0');
@@ -264,6 +302,10 @@
 
     if (titleEl) titleEl.textContent = q.question;
 
+    // Check for previously recorded answer
+    const prevAnswerObj = currentSessionAnswers.find(a => a.questionId === q.id);
+    const existingAnswerText = prevAnswerObj ? prevAnswerObj.answer : '';
+
     // Render Options List or Text Input Field
     optionsContainer.innerHTML = '';
 
@@ -275,6 +317,10 @@
       inputEl.type = 'text';
       inputEl.className = 'w-full py-3 px-4 sm:py-3.5 sm:px-5 rounded-xl sm:rounded-2xl bg-slate-950/40 border border-white/25 text-white placeholder-slate-400 focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-500/40 text-xs sm:text-base font-medium transition-all backdrop-blur-md shadow-inner';
       inputEl.placeholder = q.placeholder || 'Type your answer here...';
+
+      if (existingAnswerText) {
+        inputEl.value = existingAnswerText;
+      }
 
       const submitBtn = document.createElement('button');
       submitBtn.className = 'w-full py-3 px-4 sm:py-3.5 sm:px-5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-pink-500 via-purple-500 to-pink-600 hover:opacity-95 active:scale-95 text-white font-bold tracking-wide transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer text-xs sm:text-base';
@@ -314,11 +360,12 @@
     } else {
       q.options.forEach((opt) => {
         const btn = document.createElement('button');
-        btn.className = 'sq-option-btn w-full py-3 px-4 sm:py-3.5 sm:px-5 rounded-xl sm:rounded-2xl bg-slate-950/40 hover:bg-pink-600/30 active:scale-95 border border-white/20 hover:border-pink-400/60 transition-all duration-200 text-left font-medium flex items-center justify-between text-slate-100 hover:text-white backdrop-blur-md shadow-md cursor-pointer group';
+        const isSelected = existingAnswerText === opt.text;
+        btn.className = `sq-option-btn w-full py-3 px-4 sm:py-3.5 sm:px-5 rounded-xl sm:rounded-2xl bg-slate-950/40 hover:bg-pink-600/30 active:scale-95 border ${isSelected ? 'border-pink-400 bg-pink-500/30 shadow-[0_0_25px_rgba(244,114,182,0.4)]' : 'border-white/20 hover:border-pink-400/60'} transition-all duration-200 text-left font-medium flex items-center justify-between text-slate-100 hover:text-white backdrop-blur-md shadow-md cursor-pointer group`;
 
         btn.innerHTML = `
           <div class="flex items-center gap-2.5 sm:gap-3.5 pointer-events-none">
-            <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-xs font-bold text-pink-300 group-hover:bg-pink-500 group-hover:text-white transition-all shadow-inner shrink-0">
+            <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-full ${isSelected ? 'bg-pink-500 text-white' : 'bg-white/10 border border-white/20 text-pink-300 group-hover:bg-pink-500 group-hover:text-white'} flex items-center justify-center text-xs font-bold transition-all shadow-inner shrink-0">
               ${opt.letter}
             </span>
             <span class="text-xs sm:text-base font-semibold tracking-wide">${opt.text}</span>
@@ -336,6 +383,7 @@
 
     if (window.lucide) window.lucide.createIcons();
   }
+  window.renderQuestion = renderQuestion;
 
   // Handle Option Click & Playful Reaction Toast
   function onOptionSelected(btnEl, optionData) {
@@ -391,6 +439,9 @@
 
       setTimeout(() => {
         currentQuestionIndex++;
+        if (window.AppNavigation) {
+          window.AppNavigation.pushState({ type: 'quiz', index: currentQuestionIndex });
+        }
         renderQuestion(currentQuestionIndex);
 
         if (cardContent) {
@@ -401,7 +452,7 @@
         isTransitioning = false;
       }, 250);
     } else {
-      // Question 10 completed -> Trigger Completion Sequence
+      // Question completed -> Trigger Completion Sequence
       triggerCompletionSequence();
     }
   }
@@ -410,6 +461,10 @@
   function triggerCompletionSequence() {
     playChime('complete');
     saveCurrentSession(true);
+
+    if (window.AppNavigation) {
+      window.AppNavigation.pushState({ type: 'quiz_completion' });
+    }
 
     const quizLayer = document.getElementById('shobanaQuizLayer');
     const completionLayer = document.getElementById('shobanaCompletionLayer');
@@ -490,6 +545,9 @@
     currentSessionId = 'sub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
     currentSessionAnswers = [];
     currentQuestionIndex = 0;
+    if (window.AppNavigation) {
+      window.AppNavigation.pushState({ type: 'quiz', index: 0 });
+    }
     renderQuestion(0);
   }
   window.reopenQuiz = reopenQuiz;

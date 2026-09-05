@@ -141,6 +141,21 @@
       class="relative w-full max-w-[92%] sm:max-w-lg rounded-2xl sm:rounded-3xl p-5 sm:p-8 bg-slate-950/30 border border-white/30 shadow-[0_0_60px_rgba(244,114,182,0.25)] flex flex-col items-center text-center backdrop-blur-lg transition-all duration-500 sq-glass-card my-auto">
 
 
+      <!-- Quiz Card Header Bar (Back button, Progress indicator) -->
+      <div class="w-full flex items-center justify-between gap-2 mb-3 pb-2 border-b border-white/10">
+        <button id="sq-quiz-back-btn" title="Previous Question"
+          class="hidden opacity-0 px-3 py-1.5 rounded-full bg-slate-900/80 border border-pink-400/40 text-pink-200 text-xs font-bold shadow-md hover:bg-slate-800 transition-all flex items-center gap-1 cursor-pointer">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5 text-pink-400"></i>
+          <span>Back</span>
+        </button>
+        <span id="sq-badge-text" class="text-xs font-bold text-pink-300 font-mono tracking-wider ml-auto">QUESTION 1 / 8</span>
+      </div>
+
+      <!-- Quiz Progress Bar Container -->
+      <div class="w-full h-1.5 bg-slate-900/60 rounded-full overflow-hidden mb-5 border border-white/10">
+        <div id="sq-progress-bar" class="h-full bg-gradient-to-r from-pink-500 via-purple-500 to-amber-400 w-0 transition-all duration-500"></div>
+      </div>
+
       <!-- Card Inner Content (Fades/Scales between questions) -->
       <div id="sq-card-content" class="w-full transition-all duration-300 opacity-100 scale-100">
         <!-- Question Title -->

@@ -111,6 +111,290 @@ const APP_STATE = {
 };
 
 let currentAppState = APP_STATE.INTRO_OFF;
+
+// ==========================================
+// CENTRALIZED MOBILE & BROWSER NAVIGATION STACK CONTROLLER
+// Ensures mobile hardware back button & UI back buttons navigate back 1 step at a time
+// ==========================================
+const AppNavigation = (function () {
+  'use strict';
+
+  const historyStack = [];
+  let isInternalNavigation = false;
+
+  function isEqualState(a, b) {
+    if (!a || !b) return false;
+    if (a.type !== b.type) return false;
+    if (a.type === 'quiz') return a.index === b.index;
+    if (a.type === 'media_modal') return a.index === b.index;
+    if (a.type === 'gallery_modal') return a.tab === b.tab;
+    if (a.type === 'fullscreen_viewer') return a.indexOrSrc === b.indexOrSrc;
+    if (a.type === 'photo_viewer') return a.index === b.index;
+    if (a.type === 'video_player') return a.index === b.index;
+    return true;
+  }
+
+  function getCurrentState() {
+    return historyStack.length > 0 ? historyStack[historyStack.length - 1] : null;
+  }
+
+  function pushState(state, options = {}) {
+    const current = getCurrentState();
+    if (current && isEqualState(current, state)) {
+      return;
+    }
+
+    historyStack.push(state);
+
+    if (!options.silentHistory) {
+      isInternalNavigation = true;
+      const hash = getHash(state);
+      try {
+        window.history.pushState({ state, depth: historyStack.length }, '', hash);
+      } catch (e) {}
+      setTimeout(() => { isInternalNavigation = false; }, 50);
+    }
+  }
+
+  function replaceState(state, options = {}) {
+    if (historyStack.length > 0) {
+      historyStack[historyStack.length - 1] = state;
+    } else {
+      historyStack.push(state);
+    }
+
+    if (!options.silentHistory) {
+      isInternalNavigation = true;
+      const hash = getHash(state);
+      try {
+        window.history.replaceState({ state, depth: historyStack.length }, '', hash);
+      } catch (e) {}
+      setTimeout(() => { isInternalNavigation = false; }, 50);
+    }
+  }
+
+  function goBack() {
+    if (window.history.length > 1 && historyStack.length > 1) {
+      window.history.back();
+    } else if (historyStack.length > 1) {
+      historyStack.pop();
+      const prev = getCurrentState();
+      if (prev) {
+        applyState(prev, true);
+      }
+    }
+  }
+
+  function getHash(state) {
+    if (!state) return '#';
+    switch (state.type) {
+      case 'intro': return '#intro';
+      case 'quiz': return '#quiz-' + (state.index + 1);
+      case 'quiz_completion': return '#completion';
+      case 'cake': return '#cake';
+      case 'media_modal': return '#memory-' + ((state.index || 0) + 1);
+      case 'upload_modal': return '#upload';
+      case 'gallery_modal': return '#gallery-' + (state.tab || 'all');
+      case 'fullscreen_viewer': return '#viewer';
+      case 'photo_viewer': return '#photo-' + (state.index + 1);
+      case 'video_player': return '#video-' + (state.index + 1);
+      case 'gift_countdown': return '#countdown';
+      default: return '#';
+    }
+  }
+
+  function applyState(state, isPopstate = false) {
+    if (!state) return;
+
+    // 1. Fullscreen Image/Video Viewer
+    const fsViewer = document.getElementById('fullscreen-image-viewer');
+    if (state.type === 'fullscreen_viewer') {
+      if (typeof window.rawOpenFullscreenViewer === 'function') {
+        window.rawOpenFullscreenViewer(state.indexOrSrc, state.itemsArray);
+      }
+    } else {
+      if (fsViewer && fsViewer.classList.contains('fs-viewer-active')) {
+        if (typeof window.rawCloseFullscreenViewer === 'function') {
+          window.rawCloseFullscreenViewer();
+        }
+      }
+    }
+
+    // 2. Photo Viewer Modal
+    const photoModal = document.getElementById('photo-viewer-modal');
+    if (state.type === 'photo_viewer') {
+      if (typeof window.rawOpenPhotoViewer === 'function') {
+        window.rawOpenPhotoViewer(state.index);
+      }
+    } else {
+      if (photoModal && !photoModal.classList.contains('hidden')) {
+        if (typeof window.rawClosePhotoViewer === 'function') {
+          window.rawClosePhotoViewer();
+        }
+      }
+    }
+
+    // 3. Video Player Modal
+    const videoModal = document.getElementById('video-player-modal');
+    if (state.type === 'video_player') {
+      if (typeof window.rawOpenVideoPlayer === 'function') {
+        window.rawOpenVideoPlayer(state.index);
+      }
+    } else {
+      if (videoModal && !videoModal.classList.contains('hidden')) {
+        if (typeof window.rawCloseVideoPlayer === 'function') {
+          window.rawCloseVideoPlayer();
+        }
+      }
+    }
+
+    // 4. Gift Countdown Overlay
+    const countdownOverlay = document.getElementById('gift-countdown-overlay');
+    if (state.type === 'gift_countdown') {
+      // Countdown handled in its own function
+    } else {
+      if (countdownOverlay && !countdownOverlay.classList.contains('hidden')) {
+        if (window.countdownInterval) {
+          clearInterval(window.countdownInterval);
+          window.countdownInterval = null;
+        }
+        countdownOverlay.classList.remove('opacity-100', 'pointer-events-auto');
+        countdownOverlay.classList.add('opacity-0', 'pointer-events-none', 'hidden');
+      }
+    }
+
+    // 5. Custom Photo Upload Modal
+    const uploadModal = document.getElementById('upload-memory-modal');
+    if (state.type === 'upload_modal') {
+      if (uploadModal) uploadModal.classList.add('modal-active');
+    } else {
+      if (uploadModal && uploadModal.classList.contains('modal-active')) {
+        uploadModal.classList.remove('modal-active');
+      }
+    }
+
+    // 6. Memory Lightbox Modal
+    const mediaModal = document.getElementById('media-modal');
+    if (state.type === 'media_modal') {
+      if (typeof window.rawOpenSlideshowMediaItem === 'function') {
+        window.rawOpenSlideshowMediaItem(state.index || 0);
+      }
+    } else {
+      if (mediaModal && mediaModal.classList.contains('modal-active')) {
+        if (typeof window.rawCloseMediaModal === 'function') {
+          window.rawCloseMediaModal();
+        }
+      }
+    }
+
+    // 7. Memories Gallery Modal
+    const galleryModal = document.getElementById('memories-gallery-modal');
+    if (state.type === 'gallery_modal') {
+      if (typeof window.rawOpenMemoriesGallery === 'function') {
+        window.rawOpenMemoriesGallery(state.tab || 'photos');
+      }
+    } else {
+      if (galleryModal && !galleryModal.classList.contains('hidden')) {
+        if (typeof window.rawCloseMemoriesGallery === 'function') {
+          window.rawCloseMemoriesGallery();
+        }
+      }
+    }
+
+    // 8. Base Layer Navigation (Cake Experience vs Quiz Layers)
+    const cakeExperience = document.getElementById('cake-experience');
+    const introLayer = document.getElementById('shobanaIntroLayer');
+    const quizLayer = document.getElementById('shobanaQuizLayer');
+    const completionLayer = document.getElementById('shobanaCompletionLayer');
+
+    const isCakeState = ['cake', 'media_modal', 'upload_modal', 'gallery_modal', 'fullscreen_viewer', 'photo_viewer', 'video_player', 'gift_countdown'].includes(state.type);
+
+    if (isCakeState) {
+      if (introLayer) introLayer.style.display = 'none';
+      if (quizLayer) quizLayer.style.display = 'none';
+      if (completionLayer) completionLayer.style.display = 'none';
+      if (cakeExperience) {
+        cakeExperience.style.display = 'block';
+        cakeExperience.classList.add('cake-experience-active');
+      }
+      currentAppState = APP_STATE.CAKE_ROOM;
+    } else if (state.type === 'quiz_completion') {
+      if (cakeExperience) cakeExperience.classList.remove('cake-experience-active');
+      if (introLayer) introLayer.style.display = 'none';
+      if (quizLayer) {
+        quizLayer.classList.remove('opacity-100', 'scale-100');
+        quizLayer.classList.add('hidden', 'opacity-0');
+        quizLayer.style.display = 'none';
+      }
+      if (completionLayer) {
+        completionLayer.style.display = 'flex';
+        completionLayer.classList.remove('hidden', 'sq-fade-out', 'opacity-0', 'scale-95');
+        completionLayer.classList.add('opacity-100', 'scale-100');
+      }
+      currentAppState = APP_STATE.QUIZ;
+    } else if (state.type === 'quiz') {
+      if (cakeExperience) cakeExperience.classList.remove('cake-experience-active');
+      if (completionLayer) {
+        completionLayer.style.display = 'none';
+        completionLayer.classList.add('hidden', 'opacity-0');
+      }
+      if (introLayer) introLayer.style.display = 'none';
+      if (quizLayer) {
+        quizLayer.style.display = 'flex';
+        quizLayer.classList.remove('hidden', 'sq-fade-out');
+        requestAnimationFrame(() => {
+          quizLayer.classList.remove('opacity-0', 'scale-95');
+          quizLayer.classList.add('opacity-100', 'scale-100');
+        });
+      }
+      if (typeof window.renderQuestion === 'function') {
+        window.renderQuestion(state.index);
+      }
+      currentAppState = APP_STATE.QUIZ;
+    } else if (state.type === 'intro') {
+      if (cakeExperience) cakeExperience.classList.remove('cake-experience-active');
+      if (completionLayer) completionLayer.style.display = 'none';
+      if (quizLayer) quizLayer.style.display = 'none';
+      if (introLayer) {
+        introLayer.style.display = 'flex';
+        introLayer.classList.remove('sq-fade-out', 'hidden');
+      }
+      currentAppState = APP_STATE.INTRO_OFF;
+    }
+  }
+
+  // Popstate listener for mobile hardware back button / swipe back
+  window.addEventListener('popstate', (e) => {
+    if (isInternalNavigation) return;
+
+    if (e.state && e.state.state) {
+      const targetState = e.state.state;
+      if (historyStack.length > 0) {
+        historyStack.pop();
+      }
+      applyState(targetState, true);
+    } else {
+      if (historyStack.length > 1) {
+        historyStack.pop();
+        const prev = getCurrentState();
+        if (prev) applyState(prev, true);
+      } else {
+        applyState({ type: 'quiz', index: 0 }, true);
+      }
+    }
+  });
+
+  return {
+    pushState,
+    replaceState,
+    goBack,
+    applyState,
+    getCurrentState,
+    getStack: () => historyStack
+  };
+})();
+window.AppNavigation = AppNavigation;
+
 let lampOn = false;
 let pulling = false;
 let pullStartY = 0;
@@ -309,7 +593,7 @@ function turnOffLamp() {
   }, 1200);
 }
 
-function triggerCakeReveal() {
+function rawTriggerCakeReveal() {
   lampOn = true;
   currentAppState = APP_STATE.LIGHT_REVEAL;
 
@@ -354,14 +638,26 @@ function triggerCakeReveal() {
     }, 400);
   }, 150);
 }
+window.rawTriggerCakeReveal = rawTriggerCakeReveal;
+
+function triggerCakeReveal(isRestoring = false) {
+  if (!isRestoring && window.AppNavigation) {
+    window.AppNavigation.pushState({ type: 'cake' });
+  }
+  rawTriggerCakeReveal();
+}
 window.triggerCakeReveal = triggerCakeReveal;
 
 function goBackToQuiz() {
-  const cakeExperience = document.getElementById('cake-experience');
-  if (cakeExperience) cakeExperience.classList.remove('cake-experience-active');
-  currentAppState = APP_STATE.QUIZ;
-  if (typeof window.reopenQuiz === 'function') {
-    window.reopenQuiz();
+  if (window.AppNavigation) {
+    window.AppNavigation.goBack();
+  } else {
+    const cakeExperience = document.getElementById('cake-experience');
+    if (cakeExperience) cakeExperience.classList.remove('cake-experience-active');
+    currentAppState = APP_STATE.QUIZ;
+    if (typeof window.reopenQuiz === 'function') {
+      window.reopenQuiz();
+    }
   }
 }
 window.goBackToQuiz = goBackToQuiz;
@@ -2345,8 +2641,7 @@ function playSiteBGMOnOpen() {
   }
 }
 
-// Render Photo & Paragraph Slide Card (No booklet / flip effects)
-function openSlideshowMediaItem(index, direction = null) {
+function rawOpenSlideshowMediaItem(index, direction = null) {
   if (!UNFORGETTABLE_SLIDESHOW_ITEMS || UNFORGETTABLE_SLIDESHOW_ITEMS.length === 0) return;
 
   const total = UNFORGETTABLE_SLIDESHOW_ITEMS.length;
@@ -2411,6 +2706,18 @@ function openSlideshowMediaItem(index, direction = null) {
   modal.classList.add('modal-active');
   resetAutoSlideshowTimer();
 }
+window.rawOpenSlideshowMediaItem = rawOpenSlideshowMediaItem;
+
+function openSlideshowMediaItem(index, direction = null, isRestoring = false) {
+  if (!isRestoring && window.AppNavigation) {
+    const curr = window.AppNavigation.getCurrentState();
+    if (!curr || curr.type !== 'media_modal' || curr.index !== index) {
+      window.AppNavigation.pushState({ type: 'media_modal', index });
+    }
+  }
+  rawOpenSlideshowMediaItem(index, direction);
+}
+window.openSlideshowMediaItem = openSlideshowMediaItem;
 
 function resetAutoSlideshowTimer() {
   if (autoMoveTimer) clearInterval(autoMoveTimer);
@@ -2476,19 +2783,26 @@ function setupUploadMemoryListeners() {
   const previewImg = document.getElementById('memory-upload-img-preview');
   const paragraphInput = document.getElementById('memory-paragraph-input');
 
-  const openUploadModal = () => {
+  const openUploadModal = (isRestoring = false) => {
+    if (!isRestoring && window.AppNavigation) {
+      window.AppNavigation.pushState({ type: 'upload_modal' });
+    }
     if (uploadModal) uploadModal.classList.add('modal-active');
   };
 
-  const closeUploadModal = () => {
-    if (uploadModal) uploadModal.classList.remove('modal-active');
-    if (uploadForm) uploadForm.reset();
-    if (previewContainer) previewContainer.classList.add('hidden');
+  const closeUploadModal = (isRestoring = false) => {
+    if (!isRestoring && window.AppNavigation) {
+      window.AppNavigation.goBack();
+    } else {
+      if (uploadModal) uploadModal.classList.remove('modal-active');
+      if (uploadForm) uploadForm.reset();
+      if (previewContainer) previewContainer.classList.add('hidden');
+    }
   };
 
-  if (addMemoryBtn) addMemoryBtn.addEventListener('click', openUploadModal);
-  if (uploadCloseBtn) uploadCloseBtn.addEventListener('click', closeUploadModal);
-  if (uploadCancelBtn) uploadCancelBtn.addEventListener('click', closeUploadModal);
+  if (addMemoryBtn) addMemoryBtn.addEventListener('click', () => openUploadModal());
+  if (uploadCloseBtn) uploadCloseBtn.addEventListener('click', () => closeUploadModal());
+  if (uploadCancelBtn) uploadCancelBtn.addEventListener('click', () => closeUploadModal());
 
   if (fileInput && previewContainer && previewImg) {
     fileInput.addEventListener('change', (e) => {
@@ -2541,7 +2855,7 @@ let fsItemsList = [];
 let touchStartX = 0;
 let touchEndX = 0;
 
-function openFullscreenViewer(indexOrSrc, itemsArray = null) {
+function rawOpenFullscreenViewer(indexOrSrc, itemsArray = null) {
   const viewer = document.getElementById('fullscreen-image-viewer');
   if (!viewer) return;
 
@@ -2569,6 +2883,14 @@ function openFullscreenViewer(indexOrSrc, itemsArray = null) {
   });
 
   if (window.lucide) lucide.createIcons();
+}
+window.rawOpenFullscreenViewer = rawOpenFullscreenViewer;
+
+function openFullscreenViewer(indexOrSrc, itemsArray = null, isRestoring = false) {
+  if (!isRestoring && window.AppNavigation) {
+    window.AppNavigation.pushState({ type: 'fullscreen_viewer', indexOrSrc, itemsArray });
+  }
+  rawOpenFullscreenViewer(indexOrSrc, itemsArray);
 }
 window.openFullscreenViewer = openFullscreenViewer;
 
@@ -2628,7 +2950,7 @@ function navigateFullscreenViewer(direction) {
 }
 window.navigateFullscreenViewer = navigateFullscreenViewer;
 
-function closeFullscreenViewer() {
+function rawCloseFullscreenViewer() {
   const viewer = document.getElementById('fullscreen-image-viewer');
   const videoEl = document.getElementById('fs-active-video');
   if (videoEl) videoEl.pause();
@@ -2638,6 +2960,15 @@ function closeFullscreenViewer() {
     setTimeout(() => {
       viewer.classList.add('hidden');
     }, 450);
+  }
+}
+window.rawCloseFullscreenViewer = rawCloseFullscreenViewer;
+
+function closeFullscreenViewer(isRestoring = false) {
+  if (!isRestoring && window.AppNavigation) {
+    window.AppNavigation.goBack();
+  } else {
+    rawCloseFullscreenViewer();
   }
 }
 window.closeFullscreenViewer = closeFullscreenViewer;
@@ -2694,8 +3025,7 @@ function openMediaModal(mediaItem) {
   modal.classList.add('modal-active');
 }
 
-// Close Lightbox Media Modal
-function closeMediaModal() {
+function rawCloseMediaModal() {
   stopAutoSlideshow();
 
   const modal = document.getElementById('media-modal');
@@ -2714,13 +3044,26 @@ function closeMediaModal() {
   }
   activeSelectedFrameIndex = null;
 }
+window.rawCloseMediaModal = rawCloseMediaModal;
+
+function closeMediaModal(isRestoring = false) {
+  if (!isRestoring && window.AppNavigation) {
+    window.AppNavigation.goBack();
+  } else {
+    rawCloseMediaModal();
+  }
+}
+window.closeMediaModal = closeMediaModal;
 
 // ==========================================
 // SPECIAL GIFT COUNTDOWN SYSTEM (3, 2, 1)
 // ==========================================
 let countdownInterval = null;
 
-function startSpecialGiftCountdown() {
+function startSpecialGiftCountdown(isRestoring = false) {
+  if (!isRestoring && window.AppNavigation) {
+    window.AppNavigation.pushState({ type: 'gift_countdown' });
+  }
   const overlay = document.getElementById('gift-countdown-overlay');
   const numberEl = document.getElementById('countdown-number');
   const subtextEl = document.getElementById('countdown-subtext');
@@ -2796,8 +3139,7 @@ let currentActiveTab = 'photos';
 let currentPhotoIndex = 0;
 let currentVideoIndex = 0;
 
-// Open Fullscreen Memories Gallery Overlay
-function openMemoriesGallery(initialTab = 'photos') {
+function rawOpenMemoriesGallery(initialTab = 'photos') {
   const modal = document.getElementById('memories-gallery-modal');
   const dialog = document.getElementById('memories-gallery-dialog');
   if (!modal) return;
@@ -2817,10 +3159,17 @@ function openMemoriesGallery(initialTab = 'photos') {
 
   if (window.lucide) lucide.createIcons();
 }
+window.rawOpenMemoriesGallery = rawOpenMemoriesGallery;
+
+function openMemoriesGallery(initialTab = 'photos', isRestoring = false) {
+  if (!isRestoring && window.AppNavigation) {
+    window.AppNavigation.pushState({ type: 'gallery_modal', tab: initialTab });
+  }
+  rawOpenMemoriesGallery(initialTab);
+}
 window.openMemoriesGallery = openMemoriesGallery;
 
-// Close Fullscreen Memories Gallery Overlay
-function closeMemoriesGallery() {
+function rawCloseMemoriesGallery() {
   const modal = document.getElementById('memories-gallery-modal');
   const dialog = document.getElementById('memories-gallery-dialog');
   if (!modal) return;
@@ -2835,6 +3184,15 @@ function closeMemoriesGallery() {
   setTimeout(() => {
     modal.classList.add('hidden');
   }, 450);
+}
+window.rawCloseMemoriesGallery = rawCloseMemoriesGallery;
+
+function closeMemoriesGallery(isRestoring = false) {
+  if (!isRestoring && window.AppNavigation) {
+    window.AppNavigation.goBack();
+  } else {
+    rawCloseMemoriesGallery();
+  }
 }
 window.closeMemoriesGallery = closeMemoriesGallery;
 
@@ -2958,7 +3316,7 @@ function renderMemoriesGallery() {
 // ==========================================
 // 📷 CINEMATIC PHOTO VIEWER MODAL LOGIC
 // ==========================================
-function openPhotoViewer(index) {
+function rawOpenPhotoViewer(index) {
   if (index < 0) index = MEMORIES_DATA.photos.length - 1;
   if (index >= MEMORIES_DATA.photos.length) index = 0;
   currentPhotoIndex = index;
@@ -2992,8 +3350,17 @@ function openPhotoViewer(index) {
 
   if (window.lucide) lucide.createIcons();
 }
+window.rawOpenPhotoViewer = rawOpenPhotoViewer;
 
-function closePhotoViewer() {
+function openPhotoViewer(index, isRestoring = false) {
+  if (!isRestoring && window.AppNavigation) {
+    window.AppNavigation.pushState({ type: 'photo_viewer', index });
+  }
+  rawOpenPhotoViewer(index);
+}
+window.openPhotoViewer = openPhotoViewer;
+
+function rawClosePhotoViewer() {
   const modal = document.getElementById('photo-viewer-modal');
   const card = document.getElementById('photo-viewer-card');
   if (!modal) return;
@@ -3009,6 +3376,16 @@ function closePhotoViewer() {
     modal.classList.add('hidden');
   }, 350);
 }
+window.rawClosePhotoViewer = rawClosePhotoViewer;
+
+function closePhotoViewer(isRestoring = false) {
+  if (!isRestoring && window.AppNavigation) {
+    window.AppNavigation.goBack();
+  } else {
+    rawClosePhotoViewer();
+  }
+}
+window.closePhotoViewer = closePhotoViewer;
 
 function navigatePhotoViewer(direction) {
   if (direction === 'next') {
@@ -3021,7 +3398,7 @@ function navigatePhotoViewer(direction) {
 // ==========================================
 // 🎬 CINEMATIC VIDEO PLAYER MODAL LOGIC
 // ==========================================
-function openVideoPlayer(index) {
+function rawOpenVideoPlayer(index) {
   if (index < 0) index = MEMORIES_DATA.videos.length - 1;
   if (index >= MEMORIES_DATA.videos.length) index = 0;
   currentVideoIndex = index;
@@ -3062,8 +3439,17 @@ function openVideoPlayer(index) {
 
   if (window.lucide) lucide.createIcons();
 }
+window.rawOpenVideoPlayer = rawOpenVideoPlayer;
 
-function closeVideoPlayer() {
+function openVideoPlayer(index, isRestoring = false) {
+  if (!isRestoring && window.AppNavigation) {
+    window.AppNavigation.pushState({ type: 'video_player', index });
+  }
+  rawOpenVideoPlayer(index);
+}
+window.openVideoPlayer = openVideoPlayer;
+
+function rawCloseVideoPlayer() {
   const modal = document.getElementById('video-player-modal');
   const card = document.getElementById('video-player-card');
   const videoEl = document.getElementById('video-player-element');
@@ -3083,6 +3469,16 @@ function closeVideoPlayer() {
     if (videoEl) videoEl.src = '';
   }, 350);
 }
+window.rawCloseVideoPlayer = rawCloseVideoPlayer;
+
+function closeVideoPlayer(isRestoring = false) {
+  if (!isRestoring && window.AppNavigation) {
+    window.AppNavigation.goBack();
+  } else {
+    rawCloseVideoPlayer();
+  }
+}
+window.closeVideoPlayer = closeVideoPlayer;
 
 function navigateVideoPlayer(direction) {
   if (direction === 'next') {
