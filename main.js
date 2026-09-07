@@ -151,7 +151,7 @@ const AppNavigation = (function () {
       const hash = getHash(state);
       try {
         window.history.pushState({ state, depth: historyStack.length }, '', hash);
-      } catch (e) {}
+      } catch (e) { }
       setTimeout(() => { isInternalNavigation = false; }, 50);
     }
   }
@@ -168,7 +168,7 @@ const AppNavigation = (function () {
       const hash = getHash(state);
       try {
         window.history.replaceState({ state, depth: historyStack.length }, '', hash);
-      } catch (e) {}
+      } catch (e) { }
       setTimeout(() => { isInternalNavigation = false; }, 50);
     }
   }
@@ -563,7 +563,7 @@ function turnOffLamp() {
       bgAudio.pause();
       bgAudio.currentTime = 0;
       isAudioPlaying = false;
-    } catch (e) {}
+    } catch (e) { }
   }
 
   const bulbGlow = document.getElementById('bulb-glow');
@@ -2670,7 +2670,7 @@ function rawOpenSlideshowMediaItem(index, direction = null) {
       if (videoEl) {
         videoEl.src = item.src;
         videoEl.classList.remove('hidden');
-        videoEl.play().catch(() => {});
+        videoEl.play().catch(() => { });
       }
     } else {
       if (videoEl) {
@@ -2924,7 +2924,7 @@ function updateFullscreenMediaContent(animationDirection = null) {
     if (videoEl) {
       videoEl.src = currentItem.src;
       videoEl.classList.remove('hidden');
-      videoEl.play().catch(() => {});
+      videoEl.play().catch(() => { });
     }
     if (captionText) captionText.textContent = `🎬 Birthday Memory Video Clip ${fsCurrentIndex + 1}`;
   } else {
@@ -3299,7 +3299,7 @@ function renderMemoriesGallery() {
       `;
 
       const videoEl = card.querySelector('video');
-      card.addEventListener('mouseenter', () => videoEl && videoEl.play().catch(() => {}));
+      card.addEventListener('mouseenter', () => videoEl && videoEl.play().catch(() => { }));
       card.addEventListener('mouseleave', () => videoEl && videoEl.pause());
 
       card.addEventListener('click', () => {
@@ -3605,7 +3605,7 @@ function setupUIEventListeners() {
   if (vpVolumeBtn && videoEl) {
     vpVolumeBtn.addEventListener('click', () => {
       videoEl.muted = !videoEl.muted;
-      vpVolumeBtn.innerHTML = videoEl.muted 
+      vpVolumeBtn.innerHTML = videoEl.muted
         ? '<i data-lucide="volume-x" class="w-5 h-5 text-pink-400"></i>'
         : '<i data-lucide="volume-2" class="w-5 h-5"></i>';
       if (window.lucide) lucide.createIcons();

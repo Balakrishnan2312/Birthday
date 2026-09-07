@@ -11,13 +11,13 @@
     {
       id: 1,
       type: "text",
-      question: "Namma friendship-ku perfect emoji?",
+      question: "Nama friendship ku perfect emoji?",
       placeholder: "",
     },
     {
       id: 2,
       type: "text",
-      question: "Namma rendu perum oru movie-la characters-na, genre enna? 🤭",
+      question: "Nama rendu perum oru movie la characters na genre enna? 🤭",
       placeholder: "",
       reaction: "Blockbuster movie for sure! 🤭"
 
@@ -25,41 +25,51 @@
     {
       id: 3,
       type: "text",
-      question: "One word-la ennai describe panna 🤭",
-      placeholder: "eeeeeeeeeeeeee",
-
-
+      question: "One word la ennai describe panna 🤭",
+      placeholder: "eeeeeee",
     },
     {
       id: 4,
       type: "text",
-      question: "Namma rendu perla yaaru first-a kovapaduva ",
+      question: "Enta pedichathu enna pedikathathu enna 😁",
       placeholder: "",
     },
     {
       id: 5,
       type: "text",
-      question: "Naan message pannama irundha nee enna pannuva 😅",
+      question: "Nama rendu perla yaaru first a kovapaduva ",
       placeholder: "",
-
-
     },
     {
       id: 6,
       type: "text",
-      question: "Naan unakku surprise kudutha, first reaction enna! 🎁",
+      question: " Ena nee Avoid pannirukiya!! ",
       placeholder: "",
     },
     {
       id: 7,
       type: "text",
-      question: "Naan un birthday-a maranthurutha 😅",
+      question: "Nan message pannama irundha nee enna pannuva 😅",
+      placeholder: "",
+
+
+    },
+    {
+      id: 7,
+      type: "text",
+      question: "Nan unakku surprise kudutha first reaction enna! 🎁",
+      placeholder: "",
+    },
+    {
+      id: 8,
+      type: "text",
+      question: "Nan un birthday va maranthurutha 😅",
       placeholder: "",
       reaction: "I will NEVER forget your birthday 🤍"
     },
 
     {
-      id: 8,
+      id: 9,
       type: "text",
       question: "ipa unodaiya turn yethacham kekanuna kekalam sollanalum sollalam 😅 ",
       placeholder: "",
