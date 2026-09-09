@@ -1899,6 +1899,16 @@ function playCelebrateChime() {
   });
 }
 
+// Page Flip Sound Effect
+function playPageFlipSound() {
+  try {
+    if (typeof playSynthNote === 'function') {
+      playSynthNote(587.33, 0.12, 'sine', 0.15);
+    }
+  } catch (e) { }
+}
+window.playPageFlipSound = playPageFlipSound;
+
 // Candle Blow Sound Effect (Filtered Noise)
 function playBlowSound() {
   try {
@@ -2936,7 +2946,7 @@ function updateFullscreenMediaContent(animationDirection = null) {
       imgEl.src = currentItem.src;
       imgEl.classList.remove('hidden');
     }
-    if (captionText) captionText.textContent = `✨ Birthday Memory Photo ${fsCurrentIndex + 1}`;
+    if (captionText) captionText.textContent = currentItem.caption || currentItem.title || `✨ Birthday Memory Photo ${fsCurrentIndex + 1}`;
   }
 }
 
@@ -3080,7 +3090,9 @@ function startSpecialGiftCountdown(isRestoring = false) {
   let count = 3;
 
   function updateCount(val) {
-    playPageFlipSound();
+    if (typeof playPageFlipSound === 'function') {
+      try { playPageFlipSound(); } catch (e) { }
+    }
 
     numberEl.classList.remove('countdown-pop');
     void numberEl.offsetWidth; // Trigger reflow
@@ -3089,8 +3101,8 @@ function startSpecialGiftCountdown(isRestoring = false) {
       numberEl.textContent = val;
       if (subtextEl) subtextEl.textContent = 'Get ready for your surprise... ❤️';
     } else {
-      numberEl.textContent = '🎉';
-      if (subtextEl) subtextEl.textContent = 'Opening your special gift! 🎁';
+      numberEl.textContent = '🎁';
+      if (subtextEl) subtextEl.textContent = 'Opening your special gift! 🎉';
     }
 
     numberEl.classList.add('countdown-pop');
@@ -3099,6 +3111,7 @@ function startSpecialGiftCountdown(isRestoring = false) {
   updateCount(count);
 
   if (countdownInterval) clearInterval(countdownInterval);
+  if (window.countdownInterval) clearInterval(window.countdownInterval);
 
   countdownInterval = setInterval(() => {
     count--;
@@ -3112,6 +3125,7 @@ function startSpecialGiftCountdown(isRestoring = false) {
     } else {
       clearInterval(countdownInterval);
       countdownInterval = null;
+      window.countdownInterval = null;
 
       // Hide overlay
       overlay.classList.remove('opacity-100', 'pointer-events-auto');
@@ -3122,11 +3136,18 @@ function startSpecialGiftCountdown(isRestoring = false) {
 
         // Open IMG_3570.PNG in Full Screen Cinematic Viewer
         if (typeof window.openFullscreenViewer === 'function') {
-          window.openFullscreenViewer('assets/photos/IMG_3570.PNG', [{ type: 'image', src: 'assets/photos/IMG_3570.PNG' }]);
+          window.openFullscreenViewer('assets/photos/IMG_3570.PNG', [{
+            type: 'image',
+            src: 'assets/photos/IMG_3570.PNG',
+            title: '🎁 Special Gift',
+            caption: '🎁 Special Gift for You ❤️'
+          }]);
         }
       }, 450);
     }
   }, 1000);
+
+  window.countdownInterval = countdownInterval;
 }
 window.startSpecialGiftCountdown = startSpecialGiftCountdown;
 

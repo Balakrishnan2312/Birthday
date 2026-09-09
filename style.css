@@ -1124,24 +1124,25 @@ canvas:active {
 
 /* SPECIAL GIFT COUNTDOWN ANIMATION */
 .countdown-pop {
-  animation: countdownPop 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: countdownPop 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 
 @keyframes countdownPop {
   0% {
     opacity: 0;
-    transform: scale(0.3) rotate(-10deg);
-    filter: blur(12px);
+    transform: scale(0.2) rotate(-12deg);
+    filter: blur(16px);
   }
 
   40% {
     opacity: 1;
-    transform: scale(1.15) rotate(0deg);
+    transform: scale(1.25) rotate(0deg);
     filter: blur(0px);
   }
 
   70% {
-    transform: scale(0.98);
+    opacity: 1;
+    transform: scale(0.95);
   }
 
   100% {
