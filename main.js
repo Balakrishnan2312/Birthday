@@ -3155,18 +3155,14 @@ window.startSpecialGiftCountdown = startSpecialGiftCountdown;
 // 💿 MEMORIES WE'LL ALWAYS TREASURE GALLERY SYSTEM
 // ==========================================
 
-const POLAROID_ROTATIONS = [-3.5, 2.5, -1.8, 3.2, -4, 1.6, -2.4, 3.8, -3, 2, -2.2, 3.4, -1.5];
-let currentActiveTab = 'photos';
-let currentPhotoIndex = 0;
-let currentVideoIndex = 0;
+let currentActiveTab = 'all';
 
-function rawOpenMemoriesGallery(initialTab = 'photos') {
+function rawOpenMemoriesGallery(initialTab = 'all') {
   const modal = document.getElementById('memories-gallery-modal');
   const dialog = document.getElementById('memories-gallery-dialog');
   if (!modal) return;
 
-  switchMemoriesTab(initialTab === 'videos' ? 'videos' : 'photos');
-  renderMemoriesGallery();
+  switchMemoriesTab(initialTab);
 
   modal.classList.remove('hidden');
   requestAnimationFrame(() => {
@@ -3182,7 +3178,7 @@ function rawOpenMemoriesGallery(initialTab = 'photos') {
 }
 window.rawOpenMemoriesGallery = rawOpenMemoriesGallery;
 
-function openMemoriesGallery(initialTab = 'photos', isRestoring = false) {
+function openMemoriesGallery(initialTab = 'all', isRestoring = false) {
   if (!isRestoring && window.AppNavigation) {
     window.AppNavigation.pushState({ type: 'gallery_modal', tab: initialTab });
   }
@@ -3217,119 +3213,104 @@ function closeMemoriesGallery(isRestoring = false) {
 }
 window.closeMemoriesGallery = closeMemoriesGallery;
 
-// Switch Tab (Photos / Videos)
+// Switch Tab (All / Photos / Videos)
 function switchMemoriesTab(tab) {
   currentActiveTab = tab;
-  const tabPhotosBtn = document.getElementById('memories-tab-photos');
-  const tabVideosBtn = document.getElementById('memories-tab-videos');
-  const photosSec = document.getElementById('memories-photos-section');
-  const videosSec = document.getElementById('memories-videos-section');
+  const filterAllBtn = document.getElementById('gallery-filter-all');
+  const filterPhotosBtn = document.getElementById('gallery-filter-photos');
+  const filterVideosBtn = document.getElementById('gallery-filter-videos');
 
-  const activeTabClasses = ['bg-gradient-to-r', 'from-amber-500', 'via-pink-500', 'to-purple-600', 'text-white', 'shadow-lg'];
-  const inactiveTabClasses = ['text-slate-300', 'hover:text-white'];
+  const activeClasses = ['bg-gradient-to-r', 'from-pink-500', 'to-purple-600', 'text-white', 'shadow-md'];
+  const inactiveClasses = ['text-slate-300', 'hover:text-white'];
+
+  const resetBtn = (btn) => {
+    if (!btn) return;
+    btn.classList.remove(...activeClasses);
+    btn.classList.add(...inactiveClasses);
+  };
+  const setBtnActive = (btn) => {
+    if (!btn) return;
+    btn.classList.remove(...inactiveClasses);
+    btn.classList.add(...activeClasses);
+  };
+
+  resetBtn(filterAllBtn);
+  resetBtn(filterPhotosBtn);
+  resetBtn(filterVideosBtn);
 
   if (tab === 'photos') {
-    if (tabPhotosBtn) {
-      tabPhotosBtn.classList.remove(...inactiveTabClasses);
-      tabPhotosBtn.classList.add(...activeTabClasses);
-    }
-    if (tabVideosBtn) {
-      tabVideosBtn.classList.remove(...activeTabClasses);
-      tabVideosBtn.classList.add(...inactiveTabClasses);
-    }
-    if (photosSec) photosSec.classList.remove('hidden');
-    if (videosSec) videosSec.classList.add('hidden');
+    setBtnActive(filterPhotosBtn);
+  } else if (tab === 'videos') {
+    setBtnActive(filterVideosBtn);
   } else {
-    if (tabVideosBtn) {
-      tabVideosBtn.classList.remove(...inactiveTabClasses);
-      tabVideosBtn.classList.add(...activeTabClasses);
-    }
-    if (tabPhotosBtn) {
-      tabPhotosBtn.classList.remove(...activeTabClasses);
-      tabPhotosBtn.classList.add(...inactiveTabClasses);
-    }
-    if (videosSec) videosSec.classList.remove('hidden');
-    if (photosSec) photosSec.classList.add('hidden');
+    setBtnActive(filterAllBtn);
   }
+
+  renderMemoriesGallery();
 }
 
-// Render Gallery Contents
+// Render Gallery Contents (Pure media grid without text)
 function renderMemoriesGallery() {
-  const pCount = document.getElementById('memories-photos-count');
-  const vCount = document.getElementById('memories-videos-count');
-  if (pCount) pCount.textContent = MEMORIES_DATA.photos.length;
-  if (vCount) vCount.textContent = MEMORIES_DATA.videos.length;
+  const grid = document.getElementById('gallery-grid');
+  const filterAllBtn = document.getElementById('gallery-filter-all');
+  const filterPhotosBtn = document.getElementById('gallery-filter-photos');
+  const filterVideosBtn = document.getElementById('gallery-filter-videos');
 
-  // Render Photos (Polaroids)
-  const photosSec = document.getElementById('memories-photos-section');
-  if (photosSec) {
-    photosSec.innerHTML = '';
-    MEMORIES_DATA.photos.forEach((photo, idx) => {
-      const rot = POLAROID_ROTATIONS[idx % POLAROID_ROTATIONS.length];
-      const delay = (idx * 0.04).toFixed(2);
+  const totalPhotosCount = MEMORIES_DATA.photos.length;
+  const totalVideosCount = MEMORIES_DATA.videos.length;
+  const totalAllCount = totalPhotosCount + totalVideosCount;
 
-      const card = document.createElement('div');
-      card.className = 'polaroid-card stagger-item';
-      card.style.transform = `rotate(${rot}deg)`;
-      card.style.animationDelay = `${delay}s`;
+  if (filterAllBtn) filterAllBtn.textContent = `All (${totalAllCount})`;
+  if (filterPhotosBtn) filterPhotosBtn.textContent = `📷 Photos (${totalPhotosCount})`;
+  if (filterVideosBtn) filterVideosBtn.textContent = `🎬 Videos (${totalVideosCount})`;
 
-      card.innerHTML = `
-        <div class="polaroid-img-wrap">
-          <img src="${photo.src}" alt="${photo.title}" loading="lazy" />
-        </div>
-        <div class="polaroid-caption">
-          <span>${photo.title}</span>
-        </div>
-      `;
+  if (!grid) return;
+  grid.innerHTML = '';
 
-      card.addEventListener('click', () => {
-        openPhotoViewer(idx);
-      });
-
-      photosSec.appendChild(card);
-    });
+  // Prepare active items array based on filter tab
+  let displayItems = [];
+  if (currentActiveTab === 'photos') {
+    displayItems = MEMORIES_DATA.photos.map(p => ({ type: 'image', src: p.src }));
+  } else if (currentActiveTab === 'videos') {
+    displayItems = MEMORIES_DATA.videos.map(v => ({ type: 'video', src: v.src }));
+  } else {
+    displayItems = [
+      ...MEMORIES_DATA.photos.map(p => ({ type: 'image', src: p.src })),
+      ...MEMORIES_DATA.videos.map(v => ({ type: 'video', src: v.src }))
+    ];
   }
 
-  // Render Videos (Cinematic Cards)
-  const videosSec = document.getElementById('memories-videos-section');
-  if (videosSec) {
-    videosSec.innerHTML = '';
-    MEMORIES_DATA.videos.forEach((vid, idx) => {
-      const delay = (idx * 0.06).toFixed(2);
+  displayItems.forEach((item, idx) => {
+    const card = document.createElement('div');
+    card.className = 'group relative aspect-square rounded-2xl overflow-hidden bg-slate-900/80 border border-white/15 shadow-xl hover:shadow-pink-500/30 transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] cursor-pointer backdrop-blur-md';
 
-      const card = document.createElement('div');
-      card.className = 'memories-video-card stagger-item group';
-      card.style.animationDelay = `${delay}s`;
+    const isVideo = item.type === 'video' || (typeof item.src === 'string' && (item.src.endsWith('.mp4') || item.src.endsWith('.MP4') || item.src.endsWith('.webm')));
 
+    if (isVideo) {
       card.innerHTML = `
-        <div class="relative aspect-video rounded-xl overflow-hidden bg-slate-900">
-          <video src="${vid.src}" muted loop preload="metadata" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"></video>
-          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent flex items-center justify-center">
-            <div class="memories-play-btn group-hover:scale-110 transition-transform">
-              <i data-lucide="play" class="w-7 h-7 fill-current ml-1 text-white"></i>
-            </div>
+        <video src="${item.src}" muted loop preload="metadata" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"></video>
+        <div class="absolute inset-0 bg-slate-950/20 group-hover:bg-slate-950/10 transition-colors flex items-center justify-center pointer-events-none">
+          <div class="w-11 h-11 rounded-full bg-pink-500/85 text-white flex items-center justify-center shadow-lg backdrop-blur-md group-hover:scale-110 transition-transform">
+            <i data-lucide="play" class="w-5 h-5 fill-current ml-0.5"></i>
           </div>
-        </div>
-        <div class="p-3.5 flex items-center justify-between">
-          <div>
-            <h4 class="text-sm font-bold text-white tracking-wide">${vid.title}</h4>
-            <p class="text-xs text-amber-200/70 mt-0.5">🎬 Memory Video</p>
-          </div>
-          <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-white/10 text-white/80 border border-white/15">HD Video</span>
         </div>
       `;
-
       const videoEl = card.querySelector('video');
       card.addEventListener('mouseenter', () => videoEl && videoEl.play().catch(() => { }));
       card.addEventListener('mouseleave', () => videoEl && videoEl.pause());
+    } else {
+      card.innerHTML = `
+        <img src="${item.src}" alt="Memory Photo" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+        <div class="absolute inset-0 bg-slate-950/0 group-hover:bg-slate-950/10 transition-colors pointer-events-none"></div>
+      `;
+    }
 
-      card.addEventListener('click', () => {
-        openVideoPlayer(idx);
-      });
-
-      videosSec.appendChild(card);
+    card.addEventListener('click', () => {
+      openFullscreenViewer(idx, displayItems);
     });
-  }
+
+    grid.appendChild(card);
+  });
 
   if (window.lucide) lucide.createIcons();
 }
@@ -3528,17 +3509,20 @@ function setupUIEventListeners() {
   // Memories We’ll Always Treasure Gallery Button
   const galleryMemoriesBtn = document.getElementById('gallery-memories-btn');
   if (galleryMemoriesBtn) {
-    galleryMemoriesBtn.addEventListener('click', () => openMemoriesGallery('photos'));
+    galleryMemoriesBtn.addEventListener('click', () => openMemoriesGallery('all'));
   }
 
-  // Memories Gallery Modal Close Button & Tabs
-  const memoriesCloseBtn = document.getElementById('memories-gallery-close');
+  // Memories Gallery Modal Close Button & Filter Tabs
+  const memoriesCloseBtn = document.getElementById('gallery-close-btn');
   if (memoriesCloseBtn) memoriesCloseBtn.addEventListener('click', closeMemoriesGallery);
 
-  const memoriesTabPhotos = document.getElementById('memories-tab-photos');
-  const memoriesTabVideos = document.getElementById('memories-tab-videos');
-  if (memoriesTabPhotos) memoriesTabPhotos.addEventListener('click', () => switchMemoriesTab('photos'));
-  if (memoriesTabVideos) memoriesTabVideos.addEventListener('click', () => switchMemoriesTab('videos'));
+  const filterAllBtn = document.getElementById('gallery-filter-all');
+  const filterPhotosBtn = document.getElementById('gallery-filter-photos');
+  const filterVideosBtn = document.getElementById('gallery-filter-videos');
+
+  if (filterAllBtn) filterAllBtn.addEventListener('click', () => switchMemoriesTab('all'));
+  if (filterPhotosBtn) filterPhotosBtn.addEventListener('click', () => switchMemoriesTab('photos'));
+  if (filterVideosBtn) filterVideosBtn.addEventListener('click', () => switchMemoriesTab('videos'));
 
   const memoriesModal = document.getElementById('memories-gallery-modal');
   if (memoriesModal) {
