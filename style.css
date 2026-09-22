@@ -599,7 +599,7 @@ canvas:active {
 /* Lamp Assembly */
 .lamp {
   position: fixed;
-  top: 50%;
+  top: 48%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 10;
@@ -608,180 +608,292 @@ canvas:active {
   align-items: center;
 }
 
+/* Curved Brass Swan-Neck Arm SVG Container */
+.lamp-arm-container {
+  position: absolute;
+  top: -65px;
+  left: -85px;
+  width: 220px;
+  height: 120px;
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* Pleated Cream Fabric Lampshade */
 .lampshade {
   position: relative;
-  width: 160px;
-  height: 85px;
-  background: none;
+  width: 175px;
+  height: 105px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  transform: rotate(-12deg) translateX(-65px);
+  transform-origin: top center;
+  z-index: 5;
+  transition: filter 0.6s ease;
 }
 
-/* Top golden cap finial */
-.lampshade::after {
-  content: '';
-  position: absolute;
-  top: -9px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 26px;
-  height: 9px;
-  background: linear-gradient(180deg, #ffe89e, #fbbf24 50%, #b45309 100%);
-  border-radius: 4px 4px 2px 2px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 250, 210, 0.8);
-  z-index: 3;
-}
-
-/* Outer shade shape */
+/* Pleated Fabric Texture & Shape */
 .lampshade::before {
   content: '';
   position: absolute;
   bottom: 0;
-  width: 160px;
-  height: 85px;
-  background: linear-gradient(180deg, #252528 0%, #151518 100%);
-  clip-path: polygon(18% 0%, 82% 0%, 100% 100%, 0% 100%);
-  border-radius: 0 0 4px 4px;
+  width: 175px;
+  height: 105px;
+  background:
+    repeating-linear-gradient(90deg,
+      #fffbeb 0px,
+      #fef3c7 4px,
+      #fde68a 8px,
+      #f59e0b 11px,
+      #d97706 14px,
+      #fffbeb 16px);
+  clip-path: polygon(25% 0%, 75% 0%, 100% 100%, 0% 100%);
+  border-radius: 2px 2px 4px 4px;
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.6),
+    inset 0 2px 6px rgba(255, 255, 255, 0.8),
+    inset 0 -4px 8px rgba(180, 83, 9, 0.4);
+  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Inner rim highlight */
+/* Warm Translucent Fabric Glow when Lamp is ON */
+#room-light.on~.lamp .lampshade::before,
+.lampshade.on::before {
+  background:
+    repeating-linear-gradient(90deg,
+      #ffffff 0px,
+      #fef08a 4px,
+      #fde047 8px,
+      #f59e0b 12px,
+      #fbbf24 16px);
+  filter: drop-shadow(0 0 35px rgba(251, 191, 36, 0.8));
+}
+
+/* Top Swivel Brass Joint Cap */
+.lampshade::after {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32px;
+  height: 14px;
+  background: linear-gradient(90deg, #78350f, #d97706 25%, #fef08a 50%, #ca8a04 75%, #451a03 100%);
+  border-radius: 6px 6px 2px 2px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.9);
+  z-index: 6;
+}
+
+/* Inner Rim Highlight */
 .lampshade-inner {
   position: absolute;
   bottom: 0;
-  width: 160px;
-  height: 5px;
-  background: linear-gradient(90deg, #2a2a2d, #3e3e42, #2a2a2d);
+  width: 175px;
+  height: 6px;
+  background: linear-gradient(90deg, #92400e, #fef08a 50%, #92400e 100%);
   border-radius: 0 0 4px 4px;
-  z-index: 1;
+  z-index: 5;
 }
 
-/* Bulb glow */
+/* Bulb Glow */
 .bulb-glow {
   position: absolute;
-  bottom: -10px;
+  bottom: -15px;
   left: 50%;
   transform: translateX(-50%);
-  width: 60px;
-  height: 35px;
+  width: 70px;
+  height: 40px;
   border-radius: 50%;
   background: radial-gradient(ellipse, rgba(255, 215, 100, 0.0) 0%, transparent 80%);
-  z-index: 2;
+  z-index: 4;
   transition: all 1.2s ease;
   pointer-events: none;
 }
 
 .bulb-glow.on {
-  width: 130px;
-  height: 65px;
-  background: radial-gradient(ellipse, rgba(255, 215, 100, 0.88) 0%, rgba(255, 200, 80, 0.35) 50%, transparent 80%);
-  box-shadow: 0 0 65px 22px rgba(255, 210, 100, 0.28);
+  width: 150px;
+  height: 75px;
+  background: radial-gradient(ellipse, rgba(255, 245, 160, 0.95) 0%, rgba(251, 191, 36, 0.5) 50%, transparent 80%);
+  box-shadow: 0 0 80px 30px rgba(255, 210, 100, 0.4);
 }
 
-/* Pull String Assembly */
+/* Pull String Assembly attached under shade */
 .pull-assembly {
   position: absolute;
-  right: 18px;
-  top: 70px;
+  right: -5px;
+  top: 90px;
   display: flex;
   flex-direction: column;
   align-items: center;
   z-index: 15;
+  transform-origin: top center;
+  will-change: transform;
 }
 
 .pull-string {
-  width: 2px;
+  width: 3.5px;
   height: 75px;
-  background: linear-gradient(180deg, #666, #aaa);
+  background:
+    repeating-linear-gradient(135deg,
+      #f8fafc 0px,
+      #e2e8f0 2px,
+      #94a3b8 4px,
+      #475569 6px,
+      #1e293b 8px);
+  border-radius: 2px;
+  box-shadow:
+    1.5px 1.5px 4px rgba(0, 0, 0, 0.75),
+    inset -0.5px 0 1px rgba(0, 0, 0, 0.5),
+    inset 0.5px 0 1px rgba(255, 255, 255, 0.6);
   transform-origin: top center;
-  transition: height 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  will-change: height, transform;
 }
 
+/* Top Brass Fitting where Rope attaches to Shade */
+.pull-string::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 7px;
+  height: 5px;
+  background: linear-gradient(90deg, #78350f, #fbbf24 40%, #fffbe6 60%, #92400e 100%);
+  border-radius: 2.5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+/* Bottom Brass Ring Connector above Pull Handle */
+.pull-string::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 7px;
+  height: 5px;
+  background: linear-gradient(90deg, #78350f, #fbbf24 40%, #fffbe6 60%, #92400e 100%);
+  border-radius: 2.5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  z-index: 2;
+}
+
+/* Smooth Luxury Teardrop Pull Handle */
 .pull-handle {
-  width: 14px;
-  height: 24px;
-  background: radial-gradient(circle at 35% 35%, #fff2b3 0%, #fbbf24 45%, #d97706 75%, #78350f 100%);
-  border-radius: 12px;
+  width: 16px;
+  height: 26px;
+  background: radial-gradient(circle at 35% 30%, #ffffff 0%, #fff2b3 20%, #fbbf24 45%, #d97706 75%, #78350f 100%);
+  border-radius: 8px 8px 13px 13px;
   cursor: grab;
   position: relative;
   box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.7),
-    0 0 10px rgba(251, 191, 36, 0.3),
-    inset 0 1px 2px rgba(255, 255, 255, 0.8);
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+    0 6px 16px rgba(0, 0, 0, 0.8),
+    0 0 15px rgba(251, 191, 36, 0.4),
+    inset 0 1.5px 3px rgba(255, 255, 255, 0.95),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4);
   touch-action: none;
   z-index: 16;
   outline: none;
+  will-change: transform;
+  transition: box-shadow 0.25s ease, filter 0.25s ease;
 }
 
 .pull-handle:hover {
   box-shadow:
-    0 4px 16px rgba(251, 191, 36, 0.6),
-    0 0 16px rgba(251, 191, 36, 0.5),
-    inset 0 1px 2px rgba(255, 255, 255, 0.9);
+    0 8px 20px rgba(251, 191, 36, 0.65),
+    0 0 20px rgba(251, 191, 36, 0.6),
+    inset 0 1.5px 3px rgba(255, 255, 255, 1);
+  filter: brightness(1.1);
 }
 
 .pull-handle:active {
   cursor: grabbing;
+  filter: brightness(1.15);
 }
 
+/* Metallic Highlight Spot */
 .pull-handle::before {
   content: '';
   position: absolute;
   top: 3px;
   left: 3px;
   width: 4px;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.65);
-  border-radius: 50%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 4px;
+  filter: blur(0.5px);
 }
 
 .pull-assembly.pulled .pull-string {
-  height: 100px;
+  height: 105px;
 }
 
-/* Lamp Stand */
+/* Antique Brass Vertical Post */
 .lamp-stand {
-  width: 5px;
-  height: clamp(220px, 40vh, 360px);
-  background: linear-gradient(180deg, #333338, #1a1a1c);
-  border-radius: 2.5px;
+  width: 12px;
+  height: clamp(240px, 42vh, 380px);
+  background: linear-gradient(90deg, #451a03 0%, #78350f 20%, #d97706 45%, #fef08a 60%, #b45309 85%, #451a03 100%);
+  border-radius: 6px;
   position: relative;
+  box-shadow: 3px 0 10px rgba(0, 0, 0, 0.6), inset 1px 0 2px rgba(255, 255, 255, 0.7);
 }
 
+/* Top Decorative Ring Finial on Post */
 .lamp-stand::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 1px;
-  width: 1.5px;
-  height: 100%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent);
-  border-radius: 2px;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 20px;
+  border: 3.5px solid #d97706;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fef08a 0%, #ca8a04 60%, #78350f 100%);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.9);
 }
 
-/* Lamp Base with Golden Connection Ring */
+/* Adjustment Knob & Middle Brass Collar on Post */
+.lamp-stand::after {
+  content: '';
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 12px;
+  background: linear-gradient(90deg, #78350f, #fef08a 50%, #78350f 100%);
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6), 4px 0 0 2px #d97706;
+}
+
+/* Tiered Antique Brass Pedestal Base */
 .lamp-base {
-  width: 90px;
-  height: 14px;
-  background: linear-gradient(180deg, #28282c 0%, #141416 100%);
-  border-radius: 12px 12px 6px 6px;
+  width: 120px;
+  height: 22px;
+  background: radial-gradient(ellipse at 50% 30%, #fffbe6 0%, #facc15 25%, #d97706 55%, #78350f 85%, #381a03 100%);
+  border-radius: 60px / 12px;
   position: relative;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8), inset 0 1px 2px rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.85),
+    inset 0 2px 4px rgba(255, 255, 255, 0.9),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.6);
 }
 
-/* Golden Ring Ring above base */
+/* Molded Stepped Ring Base Trim */
 .lamp-base::before {
   content: '';
   position: absolute;
-  top: -6px;
+  top: -8px;
   left: 50%;
   transform: translateX(-50%);
-  width: 22px;
-  height: 7px;
-  background: linear-gradient(180deg, #ffe89e, #fbbf24 50%, #b45309 100%);
-  border-radius: 3px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 250, 210, 0.8);
+  width: 36px;
+  height: 10px;
+  background: linear-gradient(90deg, #451a03, #d97706 30%, #fef08a 50%, #ca8a04 75%, #451a03 100%);
+  border-radius: 5px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.9);
   z-index: 2;
 }
 
@@ -901,45 +1013,50 @@ canvas:active {
 }
 
 @media (max-width: 600px) {
+  .lamp-arm-container {
+    top: -45px;
+    left: -60px;
+    width: 150px;
+    height: 85px;
+  }
+
   .lampshade {
-    width: 100px;
-    height: 50px;
+    width: 120px;
+    height: 70px;
+    transform: rotate(-12deg) translateX(-45px);
   }
 
   .lampshade::before {
-    width: 100px;
-    height: 50px;
+    width: 120px;
+    height: 70px;
   }
 
   .lampshade-inner {
-    width: 100px;
+    width: 120px;
   }
 
   .lamp-stand {
-    height: clamp(160px, 30vh, 240px);
+    width: 9px;
+    height: clamp(180px, 32vh, 260px);
   }
 
   .lamp-base {
-    width: 44px;
-    height: 6px;
+    width: 85px;
+    height: 16px;
   }
 
   .pull-assembly {
-    right: 4px;
-    top: 38px;
+    right: -2px;
+    top: 60px;
   }
 
   .pull-string {
-    height: 30px;
+    height: 45px;
   }
 
   .pull-handle {
     width: 14px;
-    height: 20px;
-  }
-
-  .pull-assembly.pulled .pull-string {
-    height: 48px;
+    height: 22px;
   }
 
   .instruction {
@@ -998,83 +1115,7 @@ canvas:active {
   animation: biGlassPulse 5s ease-in-out infinite alternate;
 }
 
-/* ==========================================
- * ❤️ SHOBANA'S 10-QUESTION BIRTHDAY QUIZ STYLES
- * ========================================== */
 
-#shobanaIntroLayer,
-#shobanaQuizLayer,
-#shobanaCompletionLayer {
-  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), filter 0.7s ease, transform 0.7s ease;
-}
-
-.sq-fade-out {
-  opacity: 0 !important;
-  filter: blur(14px) !important;
-  transform: scale(1.06) !important;
-  pointer-events: none !important;
-}
-
-/* Typography Reveal Animations */
-.sq-text-hidden {
-  opacity: 0;
-  transform: scale(0.96) translateY(8px);
-  filter: blur(8px);
-  letter-spacing: 0.02em;
-  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.sq-text-visible {
-  opacity: 1;
-  transform: scale(1) translateY(0);
-  filter: blur(0px);
-  letter-spacing: 0.05em;
-  text-shadow: 0 0 35px rgba(244, 114, 182, 0.4), 0 0 65px rgba(236, 72, 153, 0.25);
-  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.sq-option-btn {
-  position: relative;
-  overflow: hidden;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.sq-option-btn::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
-
-.sq-option-btn:hover::after {
-  opacity: 1;
-}
-
-.sq-option-btn:active {
-  transform: scale(0.97);
-}
-
-@keyframes sqGlassPulse {
-
-  0%,
-  100% {
-    box-shadow: 0 0 50px rgba(244, 114, 182, 0.25), 0 0 90px rgba(139, 92, 246, 0.15);
-  }
-
-  50% {
-    box-shadow: 0 0 75px rgba(251, 191, 36, 0.3), 0 0 110px rgba(244, 114, 182, 0.2);
-  }
-}
-
-.sq-glass-card {
-  animation: sqGlassPulse 4.5s ease-in-out infinite alternate;
-}
 
 /* ---------------------------------------------------- */
 /* LUXURIOUS FULL-SCREEN CINEMATIC IMAGE VIEWER STYLES  */

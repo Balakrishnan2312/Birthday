@@ -89,165 +89,15 @@
 </head>
 
 <body class="h-full bg-slate-950 text-white overflow-hidden select-none font-sans">
+  <!-- Background Audio -->
+  <audio id="bg-audio" src="Megham Karukathu Bgm.mp3" loop autoplay preload="auto"></audio>
 
 
-  <!-- STAGE 0 — ❤️ SHOBANA'S CINEMATIC INTRO LAYER -->
-  <div id="shobanaIntroLayer"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/98 backdrop-blur-3xl transition-all duration-700 select-none overflow-hidden font-sans p-6 text-center">
+  <!-- 3D BIRTHDAY CAKE EXPERIENCE -->
+  <div id="cake-experience" class="cake-experience-container cake-experience-active" style="display: block;">
 
-    <!-- Ambient Glow Orbs -->
-    <div class="absolute -top-32 -left-32 w-96 h-96 bg-purple-600/25 rounded-full blur-[140px] pointer-events-none">
-    </div>
-    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-pink-600/25 rounded-full blur-[140px] pointer-events-none">
-    </div>
-    <div
-      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-amber-500/15 rounded-full blur-[160px] pointer-events-none">
-    </div>
-
-    <!-- OPENING TYPOGRAPHY TEXT SEQUENCE -->
-    <div class="w-full max-w-2xl flex items-center justify-center min-h-[220px]">
-      <h1 id="sq-intro-text"
-        class="sq-text-hidden text-2xl sm:text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-pink-300 to-purple-200 tracking-wide leading-relaxed">
-        Hi Shobana... 🤍
-      </h1>
-    </div>
-
-  </div>
-
-  <!-- STAGE 0B — 📝 SHOBANA'S 10-QUESTION BIRTHDAY QUIZ LAYER -->
-  <div id="shobanaQuizLayer"
-    class="hidden opacity-0 scale-95 fixed inset-0 z-50 flex items-center justify-center bg-slate-950 transition-all duration-700 select-none overflow-y-auto font-sans p-3 sm:p-6 bg-cover bg-center bg-no-repeat"
-    style="background-image: url('photo2.jpg');">
-
-    <!-- Dark Overlay for Background Image Contrast on Mobile & Desktop -->
-    <div class="absolute inset-0 bg-slate-950/45 backdrop-blur-[1px] pointer-events-none"></div>
-
-    <!-- Ambient Glow Orbs -->
-    <div
-      class="absolute -top-40 -left-40 w-72 h-72 sm:w-96 sm:h-96 bg-pink-600/20 rounded-full blur-[100px] sm:blur-[140px] pointer-events-none">
-    </div>
-    <div
-      class="absolute -bottom-40 -right-40 w-72 h-72 sm:w-96 sm:h-96 bg-purple-600/20 rounded-full blur-[100px] sm:blur-[140px] pointer-events-none">
-    </div>
-
-    <!-- QUIZ CARD CONTAINER (Mobile Formatted & Transparent Glassmorphic Box) -->
-    <div id="sq-card"
-      class="relative w-full max-w-[92%] sm:max-w-lg rounded-2xl sm:rounded-3xl p-5 sm:p-8 bg-slate-950/30 border border-white/30 shadow-[0_0_60px_rgba(244,114,182,0.25)] flex flex-col items-center text-center backdrop-blur-lg transition-all duration-500 sq-glass-card my-auto">
-
-
-      <!-- Quiz Card Header Bar (Back button) -->
-      <div class="w-full flex items-center justify-start mb-2">
-        <button id="sq-quiz-back-btn" title="Previous Question"
-          class="hidden opacity-0 px-3 py-1.5 rounded-full bg-slate-900/80 border border-pink-400/40 text-pink-200 text-xs font-bold shadow-md hover:bg-slate-800 transition-all flex items-center gap-1 cursor-pointer">
-          <i data-lucide="arrow-left" class="w-3.5 h-3.5 text-pink-400"></i>
-          <span>Back</span>
-        </button>
-      </div>
-
-      <!-- Card Inner Content (Fades/Scales between questions) -->
-      <div id="sq-card-content" class="w-full transition-all duration-300 opacity-100 scale-100">
-        <!-- Question Title -->
-        <h2 id="sq-question-title" class="text-lg sm:text-2xl font-bold text-white mb-6 leading-snug">
-          Naan unakku enna? 😏
-        </h2>
-
-        <!-- Answer Options Buttons Container -->
-        <div id="sq-options-container" class="w-full space-y-3">
-          <!-- Rendered dynamically by shobanaQuiz.js -->
-        </div>
-      </div>
-
-    </div>
-
-  </div>
-
-  <!-- STAGE 0C — ✨ TASK COMPLETION TRANSITION LAYER -->
-  <div id="shobanaCompletionLayer"
-    class="hidden opacity-0 scale-95 fixed inset-0 z-50 flex items-center justify-center bg-slate-950 transition-all duration-700 select-none overflow-hidden font-sans p-4 bg-cover bg-center bg-no-repeat"
-    style="background-image: url('photo2.jpg');">
-
-    <!-- Dark Overlay for Contrast -->
-    <div class="absolute inset-0 bg-slate-950/45 backdrop-blur-[1px] pointer-events-none"></div>
-
-    <!-- Ambient Glow Orbs -->
-    <div
-      class="absolute -top-40 -left-40 w-72 h-72 sm:w-96 sm:h-96 bg-pink-600/20 rounded-full blur-[100px] sm:blur-[140px] pointer-events-none">
-    </div>
-    <div
-      class="absolute -bottom-40 -right-40 w-72 h-72 sm:w-96 sm:h-96 bg-purple-600/20 rounded-full blur-[100px] sm:blur-[140px] pointer-events-none">
-    </div>
-
-    <!-- Completion Glass Card -->
-    <div
-      class="relative w-full max-w-[92%] sm:max-w-lg rounded-2xl sm:rounded-3xl p-6 sm:p-10 bg-slate-950/30 border border-white/30 shadow-[0_0_80px_rgba(244,114,182,0.3)] flex flex-col items-center text-center backdrop-blur-lg transition-all duration-500 sq-glass-card my-auto">
-
-      <div class="text-4xl sm:text-5xl mb-6 animate-bounce">🤍</div>
-
-      <!-- Surprise Button -->
-      <button id="sq-surprise-btn"
-        class="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-amber-400 text-white font-black text-lg sm:text-xl shadow-[0_0_40px_rgba(244,114,182,0.5)] hover:shadow-[0_0_60px_rgba(244,114,182,0.8)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center gap-3 cursor-pointer border border-white/30">
-        <span>Surprise 😁</span>
-      </button>
-
-    </div>
-
-  </div>
-
-  <!-- STAGE 1 — DARK ROOM + PULL-STRING LIGHT INTRO -->
-  <div id="lamp-intro" class="lamp-intro-container">
-    <!-- Ambient room light overlay -->
-    <div id="room-light" class="room-light"></div>
-
-    <!-- Lamp assembly -->
-    <div id="lamp" class="lamp">
-      <!-- Lampshade -->
-      <div class="lampshade">
-        <div class="lampshade-inner"></div>
-        <!-- Bulb glow (visible when ON) -->
-        <div id="bulb-glow" class="bulb-glow"></div>
-      </div>
-
-      <!-- Pull-string assembly -->
-      <div id="pull-assembly" class="pull-assembly">
-        <div id="pull-string" class="pull-string"></div>
-        <div id="pull-handle" class="pull-handle" role="button" aria-label="Pull to toggle lamp" tabindex="0"></div>
-      </div>
-
-      <!-- Lamp stand -->
-      <div class="lamp-stand"></div>
-
-      <!-- Lamp base -->
-      <div class="lamp-base"></div>
-
-      <!-- Floor shadow -->
-      <div id="floor-shadow" class="floor-shadow"></div>
-    </div>
-
-    <!-- Light cone beam -->
-    <div id="light-cone" class="light-cone"></div>
-
-    <!-- Dust particles container -->
-    <div id="particles" class="particles"></div>
-
-    <!-- Cursor glow -->
-    <div id="cursor-glow" class="cursor-glow"></div>
-  </div>
-
-  <!-- CINEMATIC TRANSITION OVERLAY -->
-  <div id="transition-overlay" class="transition-overlay"></div>
-
-  <!-- STAGE 2 — 3D BIRTHDAY CAKE EXPERIENCE -->
-  <div id="cake-experience" class="cake-experience-container">
-
-    <!-- Top Navigation Buttons -->
+    <!-- Top Navigation Bar -->
     <div class="fixed top-4 left-4 right-4 z-40 flex items-center justify-between pointer-events-none">
-      <!-- Top-Left Back Navigation Button -->
-      <button id="cake-back-btn" title="Back to Quiz"
-        class="pointer-events-auto px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-slate-900/80 border border-pink-400/40 text-pink-200 text-xs sm:text-sm font-bold shadow-2xl backdrop-blur-xl hover:bg-slate-800 hover:text-white hover:border-pink-400 hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-2 cursor-pointer">
-        <i data-lucide="arrow-left" class="w-4 h-4 text-pink-400"></i>
-        <span>Back</span>
-      </button>
-
     </div>
 
     <!-- 3D Canvas Container -->
@@ -390,14 +240,14 @@
     <!-- FLOATING BOTTOM ACTION BUTTONS -->
     <div
       class="fixed bottom-4 sm:bottom-6 left-4 right-4 sm:left-6 sm:right-6 z-20 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3.5 pointer-events-none">
-      <button id="special-gift-btn"
-        class="pointer-events-auto liquid-glass-btn py-2.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 tracking-wide text-white border border-pink-400/40 bg-gradient-to-r from-pink-500/30 to-purple-600/30 hover:from-pink-500/50 hover:to-purple-600/50 cursor-pointer shadow-lg backdrop-blur-md hover:scale-105 active:scale-95 transition-all">
-        <span>🎁 Special gift for you</span>
-      </button>
-
       <button id="gallery-memories-btn"
         class="pointer-events-auto liquid-glass-btn py-2.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 tracking-wide text-white border border-cyan-400/40 bg-gradient-to-r from-cyan-500/30 via-purple-600/30 to-pink-500/30 hover:from-cyan-500/50 hover:to-pink-500/50 cursor-pointer shadow-lg backdrop-blur-md hover:scale-105 active:scale-95 transition-all">
         <span>Memories We’ll Always Treasure 🧿</span>
+      </button>
+
+      <button id="special-gift-btn"
+        class="pointer-events-auto liquid-glass-btn py-2.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 tracking-wide text-white border border-pink-400/40 bg-gradient-to-r from-pink-500/30 via-purple-600/30 to-amber-500/30 hover:from-pink-500/50 hover:to-amber-500/50 cursor-pointer shadow-lg backdrop-blur-md hover:scale-105 active:scale-95 transition-all">
+        <span>Special Gift For You🤍 </span>
       </button>
     </div>
 
@@ -476,9 +326,6 @@
     </div>
 
     <div class="relative z-10 flex flex-col items-center justify-center max-w-md">
-      <div class="mb-4 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pink-500/10 border border-pink-500/30 text-pink-300 text-xs sm:text-sm font-bold tracking-wider uppercase">
-        <span>🎁 Special Gift Surprise</span>
-      </div>
 
       <!-- Countdown Number Display -->
       <div id="countdown-number"
@@ -486,10 +333,7 @@
         3
       </div>
 
-      <!-- Subtext Display -->
-      <p id="countdown-subtext" class="text-sm sm:text-lg font-semibold text-pink-200/90 tracking-wide mt-2">
-        Get ready for your surprise... ❤️
-      </p>
+
     </div>
 
   </div>
@@ -533,7 +377,7 @@
         <img id="fs-active-img" src="" alt="Full Screen Memory"
           class="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl border border-white/10 select-none transition-all duration-300" />
         <video id="fs-active-video" src="" controls autoplay muted loop
-          class="hidden max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl border border-white/10" />
+          class="hidden max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl border border-white/10"></video>
       </div>
 
       <!-- Next Button (Right Arrow) -->
@@ -549,8 +393,6 @@
 
   <!-- JavaScript Main Logic -->
   <script src="main.js?v=14"></script>
-  <!-- Shobana's Birthday Intro & 10-Question Quiz Engine -->
-  <script src="shobanaQuiz.js"></script>
 
   <!-- Initialize Lucide Icons -->
   <script>

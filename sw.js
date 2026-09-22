@@ -1,4 +1,4 @@
-const CACHE_NAME = 'birthday-3d-v8';
+const CACHE_NAME = 'birthday-3d-v10';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -6,12 +6,9 @@ const ASSETS_TO_CACHE = [
   './admin.js',
   './style.css',
   './main.js',
-  './shobanaQuiz.js',
-  './manifest.json',
-  './icon-192.svg',
-  './icon-512.svg',
   './IMG_0027.JPG',
   './IMG_2952.JPG',
+  './IMG_3570.PNG',
   './photo2.jpg',
   './photo3.jpg',
   './photo4.jpg',
@@ -20,19 +17,21 @@ const ASSETS_TO_CACHE = [
   './photo10.jpeg',
   './photo11.jpeg',
   './Megham Karukathu Bgm.mp3',
-  './Kekaamale Unakena Thara Uyir Irukkudhu - Chella Magale _ Jana Nayagan _ Tamil.mp3',
   './video/IMG_2945.MP4',
   './video/IMG_2947.MP4',
   './video/IMG_2949.MP4',
+  './video/WhatsApp Video 2025-12-23 at 8.35.51 PM.mp4',
   './video/WhatsApp Video 2025-12-23 at 8.36.05 PM.mp4',
   './video/WhatsApp Video 2025-12-23 at 8.36.06 PM.mp4'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
+    caches.open(CACHE_NAME).then(async (cache) => {
       console.log('[ServiceWorker] Caching app shell & assets');
-      return cache.addAll(ASSETS_TO_CACHE);
+      await Promise.allSettled(
+        ASSETS_TO_CACHE.map((url) => cache.add(url).catch((err) => console.warn(`[ServiceWorker] Could not cache ${url}:`, err)))
+      );
     }).then(() => self.skipWaiting())
   );
 });

@@ -110,7 +110,7 @@ const APP_STATE = {
   CAKE_ROOM: 'CAKE_ROOM'
 };
 
-let currentAppState = APP_STATE.INTRO_OFF;
+let currentAppState = APP_STATE.CAKE_ROOM;
 
 // ==========================================
 // CENTRALIZED MOBILE & BROWSER NAVIGATION STACK CONTROLLER
@@ -301,66 +301,15 @@ const AppNavigation = (function () {
       }
     }
 
-    // 8. Base Layer Navigation (Cake Experience vs Quiz Layers)
+    // 8. Base Layer Navigation
     const cakeExperience = document.getElementById('cake-experience');
-    const introLayer = document.getElementById('shobanaIntroLayer');
-    const quizLayer = document.getElementById('shobanaQuizLayer');
-    const completionLayer = document.getElementById('shobanaCompletionLayer');
-
     const isCakeState = ['cake', 'media_modal', 'upload_modal', 'gallery_modal', 'fullscreen_viewer', 'photo_viewer', 'video_player', 'gift_countdown'].includes(state.type);
 
-    if (isCakeState) {
-      if (introLayer) introLayer.style.display = 'none';
-      if (quizLayer) quizLayer.style.display = 'none';
-      if (completionLayer) completionLayer.style.display = 'none';
-      if (cakeExperience) {
-        cakeExperience.style.display = 'block';
-        cakeExperience.classList.add('cake-experience-active');
-      }
-      currentAppState = APP_STATE.CAKE_ROOM;
-    } else if (state.type === 'quiz_completion') {
-      if (cakeExperience) cakeExperience.classList.remove('cake-experience-active');
-      if (introLayer) introLayer.style.display = 'none';
-      if (quizLayer) {
-        quizLayer.classList.remove('opacity-100', 'scale-100');
-        quizLayer.classList.add('hidden', 'opacity-0');
-        quizLayer.style.display = 'none';
-      }
-      if (completionLayer) {
-        completionLayer.style.display = 'flex';
-        completionLayer.classList.remove('hidden', 'sq-fade-out', 'opacity-0', 'scale-95');
-        completionLayer.classList.add('opacity-100', 'scale-100');
-      }
-      currentAppState = APP_STATE.QUIZ;
-    } else if (state.type === 'quiz') {
-      if (cakeExperience) cakeExperience.classList.remove('cake-experience-active');
-      if (completionLayer) {
-        completionLayer.style.display = 'none';
-        completionLayer.classList.add('hidden', 'opacity-0');
-      }
-      if (introLayer) introLayer.style.display = 'none';
-      if (quizLayer) {
-        quizLayer.style.display = 'flex';
-        quizLayer.classList.remove('hidden', 'sq-fade-out');
-        requestAnimationFrame(() => {
-          quizLayer.classList.remove('opacity-0', 'scale-95');
-          quizLayer.classList.add('opacity-100', 'scale-100');
-        });
-      }
-      if (typeof window.renderQuestion === 'function') {
-        window.renderQuestion(state.index);
-      }
-      currentAppState = APP_STATE.QUIZ;
-    } else if (state.type === 'intro') {
-      if (cakeExperience) cakeExperience.classList.remove('cake-experience-active');
-      if (completionLayer) completionLayer.style.display = 'none';
-      if (quizLayer) quizLayer.style.display = 'none';
-      if (introLayer) {
-        introLayer.style.display = 'flex';
-        introLayer.classList.remove('sq-fade-out', 'hidden');
-      }
-      currentAppState = APP_STATE.INTRO_OFF;
+    if (cakeExperience) {
+      cakeExperience.style.display = 'block';
+      cakeExperience.classList.add('cake-experience-active');
     }
+    currentAppState = APP_STATE.CAKE_ROOM;
   }
 
   // Popstate listener for mobile hardware back button / swipe back
@@ -444,50 +393,142 @@ function initLampIntro() {
     }
   });
 
+  // Dynamic Spring Physics for Smooth Rope ("kayiru") Motion
+  let ropeState = {
+    currentY: 0,
+    targetY: 0,
+    currentX: 0,
+    targetX: 0,
+    vy: 0,
+    vx: 0,
+    isDragging: false,
+    pullStartY: 0,
+    pullStartX: 0,
+    pullDeltaY: 0,
+    animating: false
+  };
+
+  const STIFFNESS = 0.18;
+  const DAMPING = 0.74;
+  const PULL_MAX_Y = 60;
+
+  function clientX(e) {
+    return e.touches && e.touches.length > 0 ? e.touches[0].clientX : e.clientX;
+  }
   function clientY(e) {
-    return e.touches ? e.touches[0].clientY : e.clientY;
+    return e.touches && e.touches.length > 0 ? e.touches[0].clientY : e.clientY;
   }
 
   function getBaseStringHeight() {
-    return window.innerWidth <= 600 ? 55 : 75;
+    return window.innerWidth <= 600 ? 45 : 75;
+  }
+
+  function updateRopePhysics() {
+    const baseHeight = getBaseStringHeight();
+
+    if (ropeState.isDragging) {
+      ropeState.currentY += (ropeState.targetY - ropeState.currentY) * 0.35;
+      ropeState.currentX += (ropeState.targetX - ropeState.currentX) * 0.35;
+    } else {
+      const forceY = (ropeState.targetY - ropeState.currentY) * STIFFNESS;
+      ropeState.vy = (ropeState.vy + forceY) * DAMPING;
+      ropeState.currentY += ropeState.vy;
+
+      const forceX = (ropeState.targetX - ropeState.currentX) * STIFFNESS;
+      ropeState.vx = (ropeState.vx + forceX) * DAMPING;
+      ropeState.currentX += ropeState.vx;
+    }
+
+    const activeHeight = Math.max(15, baseHeight + ropeState.currentY);
+    const rotateAngle = ropeState.currentX / 2.5;
+
+    if (pullString) {
+      pullString.style.height = activeHeight + 'px';
+      pullString.style.transform = `rotate(${rotateAngle * 0.5}deg)`;
+    }
+
+    if (pullHandle) {
+      pullHandle.style.transform = `translate(${ropeState.currentX}px, ${ropeState.currentY}px) rotate(${rotateAngle}deg)`;
+    }
+
+    if (
+      ropeState.isDragging ||
+      Math.abs(ropeState.vy) > 0.04 ||
+      Math.abs(ropeState.currentY) > 0.04 ||
+      Math.abs(ropeState.currentX) > 0.04
+    ) {
+      requestAnimationFrame(updateRopePhysics);
+    } else {
+      ropeState.currentY = 0;
+      ropeState.currentX = 0;
+      ropeState.vy = 0;
+      ropeState.vx = 0;
+      if (pullString) {
+        pullString.style.height = '';
+        pullString.style.transform = '';
+      }
+      if (pullHandle) {
+        pullHandle.style.transform = '';
+      }
+      ropeState.animating = false;
+    }
+  }
+
+  function startPhysicsLoop() {
+    if (!ropeState.animating) {
+      ropeState.animating = true;
+      requestAnimationFrame(updateRopePhysics);
+    }
   }
 
   function onPullStart(e) {
     if (currentAppState === APP_STATE.CAKE_ROOM) return;
-    if (e.button !== undefined && e.button !== 0) return; // Only primary mouse button
-    pulling = true;
-    pullStartY = clientY(e);
-    pullDelta = 0;
+    if (e.button !== undefined && e.button !== 0) return;
+
+    ropeState.isDragging = true;
+    ropeState.pullStartY = clientY(e);
+    ropeState.pullStartX = clientX(e);
+    ropeState.pullDeltaY = 0;
+
     if (currentAppState === APP_STATE.INTRO_OFF) {
       currentAppState = APP_STATE.LAMP_PULLING;
     }
-    pullHandle.classList.remove('pulsing');
-    pullHandle.style.cursor = 'grabbing';
+    if (pullHandle) {
+      pullHandle.classList.remove('pulsing');
+      pullHandle.style.cursor = 'grabbing';
+    }
+    startPhysicsLoop();
   }
 
   function onPullMove(e) {
-    if (!pulling) return;
-    pullDelta = Math.max(0, clientY(e) - pullStartY);
-    const clampedDelta = Math.min(pullDelta, 50);
-    if (pullString) pullString.style.height = (getBaseStringHeight() + clampedDelta) + 'px';
-    if (pullHandle) pullHandle.style.transform = 'translateY(' + clampedDelta + 'px)';
+    if (!ropeState.isDragging) return;
+    const dy = clientY(e) - ropeState.pullStartY;
+    const dx = clientX(e) - ropeState.pullStartX;
+
+    ropeState.pullDeltaY = Math.max(0, dy);
+    ropeState.targetY = Math.min(PULL_MAX_Y, Math.max(0, dy));
+    ropeState.targetX = Math.min(25, Math.max(-25, dx * 0.45));
+    startPhysicsLoop();
   }
 
   function onPullEnd() {
-    if (!pulling) return;
-    pulling = false;
-    pullHandle.style.cursor = 'grab';
+    if (!ropeState.isDragging) return;
+    ropeState.isDragging = false;
+    if (pullHandle) pullHandle.style.cursor = 'grab';
 
-    if (pullString) pullString.style.height = '';
-    if (pullHandle) pullHandle.style.transform = '';
+    const wasTriggered = ropeState.pullDeltaY >= PULL_THRESHOLD;
 
-    if (pullDelta >= PULL_THRESHOLD) {
-      toggleLamp();
-    } else {
-      // Quick tap / click fallback animation & toggle
-      animatePull();
+    ropeState.targetY = 0;
+    ropeState.targetX = 0;
+
+    if (!wasTriggered) {
+      ropeState.vy = 14;
     }
-    pullDelta = 0;
+
+    startPhysicsLoop();
+    toggleLamp();
+
+    ropeState.pullDeltaY = 0;
   }
 
   function onHandleClick(e) {
@@ -495,11 +536,11 @@ function initLampIntro() {
   }
 
   function animatePull() {
-    if (pullAssembly) pullAssembly.classList.add('pulled');
+    ropeState.vy = 16;
+    startPhysicsLoop();
     setTimeout(() => {
-      if (pullAssembly) pullAssembly.classList.remove('pulled');
       toggleLamp();
-    }, 320);
+    }, 280);
   }
 }
 
@@ -597,13 +638,6 @@ function rawTriggerCakeReveal() {
   lampOn = true;
   currentAppState = APP_STATE.LIGHT_REVEAL;
 
-  const introLayer = document.getElementById('shobanaIntroLayer');
-  const quizLayer = document.getElementById('shobanaQuizLayer');
-  const completionLayer = document.getElementById('shobanaCompletionLayer');
-  if (introLayer) { introLayer.style.display = 'none'; }
-  if (quizLayer) { quizLayer.style.display = 'none'; }
-  if (completionLayer) { completionLayer.style.display = 'none'; }
-
   const lampIntro = document.getElementById('lamp-intro');
   const transitionOverlay = document.getElementById('transition-overlay');
   const cakeExperience = document.getElementById('cake-experience');
@@ -652,12 +686,7 @@ function goBackToQuiz() {
   if (window.AppNavigation) {
     window.AppNavigation.goBack();
   } else {
-    const cakeExperience = document.getElementById('cake-experience');
-    if (cakeExperience) cakeExperience.classList.remove('cake-experience-active');
-    currentAppState = APP_STATE.QUIZ;
-    if (typeof window.reopenQuiz === 'function') {
-      window.reopenQuiz();
-    }
+    turnOffLamp();
   }
 }
 window.goBackToQuiz = goBackToQuiz;
@@ -746,7 +775,8 @@ document.addEventListener('DOMContentLoaded', () => {
   createAmbientSparkles();
   setupUIEventListeners();
   animate();
-  initLampIntro();
+  triggerCakeReveal(true);
+  playSiteBGMOnOpen();
 });
 
 // ==========================================
@@ -2633,21 +2663,34 @@ let UNFORGETTABLE_SLIDESHOW_ITEMS = loadUnforgettableMemories();
 
 function initAudio() {
   if (!bgAudio) {
-    bgAudio = new Audio('Megham Karukathu Bgm.mp3');
+    bgAudio = document.getElementById('bg-audio');
+    if (!bgAudio) {
+      bgAudio = new Audio('Megham Karukathu Bgm.mp3');
+    }
     bgAudio.loop = true;
     bgAudio.volume = 0.85;
   }
 }
 
 function playSiteBGMOnOpen() {
-  if (currentAppState !== APP_STATE.CAKE_ROOM) return;
   initAudio();
   if (bgAudio) {
     bgAudio.muted = false;
     bgAudio.volume = 0.85;
     bgAudio.play().then(() => {
       isAudioPlaying = true;
-    }).catch(e => console.log('Audio playback error:', e));
+    }).catch(() => {
+      const handleUserGesture = () => {
+        if (bgAudio && bgAudio.paused) {
+          bgAudio.play().then(() => {
+            isAudioPlaying = true;
+          }).catch(e => console.log('Audio playback error:', e));
+        }
+      };
+      window.addEventListener('click', handleUserGesture, { once: true });
+      window.addEventListener('touchstart', handleUserGesture, { once: true });
+      window.addEventListener('pointerdown', handleUserGesture, { once: true });
+    });
   }
 }
 
@@ -3099,10 +3142,8 @@ function startSpecialGiftCountdown(isRestoring = false) {
 
     if (val > 0) {
       numberEl.textContent = val;
-      if (subtextEl) subtextEl.textContent = 'Get ready for your surprise... ❤️';
     } else {
       numberEl.textContent = '🎁';
-      if (subtextEl) subtextEl.textContent = 'Opening your special gift! 🎉';
     }
 
     numberEl.classList.add('countdown-pop');
@@ -3136,9 +3177,9 @@ function startSpecialGiftCountdown(isRestoring = false) {
 
         // Open IMG_3570.PNG in Full Screen Cinematic Viewer
         if (typeof window.openFullscreenViewer === 'function') {
-          window.openFullscreenViewer('assets/photos/IMG_3570.PNG', [{
+          window.openFullscreenViewer('IMG_3570.PNG', [{
             type: 'image',
-            src: 'assets/photos/IMG_3570.PNG',
+            src: 'IMG_3570.PNG',
             title: '🎁 Special Gift',
             caption: '🎁 Special Gift for You ❤️'
           }]);
